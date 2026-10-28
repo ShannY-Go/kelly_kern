@@ -3,27 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Келли Кёрн — Архив Разведкорпуса</title>
+    <title>Келли Кёрн — Личное досье // Архив Разведкорпуса</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        scout: {
-                            bg: '#0c0d0e',
-                            card: '#131618',
-                            border: '#222629',
-                            green: '#2c4c3e',
-                            greenHover: '#375e4d',
-                            tan: '#a88458',
-                            text: '#e4e3df',
-                            muted: '#8b9296'
+                        obsidian: '#0a0b0c',
+                        charcoal: '#111315',
+                        surface: '#16191c',
+                        borderline: 'rgba(255, 255, 255, 0.08)',
+                        corps: {
+                            green: '#2d4a3e',
+                            emerald: '#3e6b58',
+                            brass: '#c8b28e',
+                            parchment: '#e6e1d6',
+                            muted: '#8c9398'
                         }
+                    },
+                    fontFamily: {
+                        serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+                        sans: ['"Inter"', 'system-ui', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace']
                     }
                 }
             }
@@ -31,512 +37,572 @@
     </script>
 
     <style>
+        :root {
+            color-scheme: dark;
+        }
         body {
+            background-color: #0a0b0c;
+            color: #e6e1d6;
             font-family: 'Inter', sans-serif;
-            background-color: #0c0d0e;
-            color: #e4e3df;
+            overflow-x: hidden;
         }
-        .serif-title {
-            font-family: 'Cormorant Garamond', serif;
+        /* Мягкая кинематографическая зернистость */
+        .bg-grain {
+            background-image: radial-gradient(rgba(200, 178, 142, 0.04) 1px, transparent 0);
+            background-size: 24px 24px;
         }
+        /* Стили скроллбара */
         ::-webkit-scrollbar {
-            width: 6px;
+            width: 5px;
         }
         ::-webkit-scrollbar-track {
-            background: #0c0d0e;
+            background: #0a0b0c;
         }
         ::-webkit-scrollbar-thumb {
-            background: #2c4c3e;
-            border-radius: 3px;
+            background: #2d4a3e;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #a88458;
+            background: #c8b28e;
         }
+
+        /* Плавное появление */
         .fade-in {
-            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation: fadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(6px); }
+            from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        /* Элементы управления видны ТОЛЬКО когда разблокирован режим автора */
-        .owner-only {
+
+        /* Управление видимостью элементов редактора */
+        .editor-only {
             display: none !important;
         }
-        body.admin-unlocked .owner-only {
+        body.is-editor .editor-only {
             display: inline-flex !important;
         }
-        body.admin-unlocked .owner-only-block {
-            display: block !important;
-        }
-        .owner-only-block {
+        .editor-only-block {
             display: none !important;
         }
-        /* Индикация режима редактирования поверх слотов */
-        body.admin-unlocked.edit-mode .editable-slot {
-            outline: 2px dashed rgba(168, 132, 88, 0.7);
-            outline-offset: -2px;
+        body.is-editor .editor-only-block {
+            display: block !important;
         }
-        .edit-overlay {
+        .editor-only-flex {
+            display: none !important;
+        }
+        body.is-editor .editor-only-flex {
+            display: flex !important;
+        }
+
+        /* Подсветка редактируемых текстовых полей в режиме редактора */
+        body.is-editor [data-editable="true"] {
+            outline: 1px dashed rgba(200, 178, 142, 0.35);
+            outline-offset: 4px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            cursor: text;
+        }
+        body.is-editor [data-editable="true"]:hover {
+            outline: 1px dashed rgba(200, 178, 142, 0.85);
+            background-color: rgba(200, 178, 142, 0.05);
+        }
+        body.is-editor [data-editable="true"]:focus {
+            outline: 1px solid #c8b28e;
+            background-color: rgba(22, 25, 28, 0.9);
+            box-shadow: 0 0 0 4px rgba(200, 178, 142, 0.1);
+        }
+
+        /* Оверлей замены картинок в режиме редактора */
+        .img-edit-overlay {
             display: none;
         }
-        body.admin-unlocked.edit-mode .edit-overlay {
+        body.is-editor .img-edit-overlay {
             display: flex;
         }
     </style>
 </head>
-<body class="antialiased selection:bg-scout-tan selection:text-scout-bg min-h-screen flex flex-col">
+<body class="bg-obsidian bg-grain text-corps-parchment antialiased selection:bg-corps-brass selection:text-obsidian min-h-screen flex flex-col">
 
-    <!-- Уведомление (Toast) -->
-    <div id="toast" class="fixed bottom-5 right-5 z-50 hidden bg-scout-card border border-scout-tan/50 text-scout-text px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-sm">
-        <span class="w-2 h-2 rounded-full bg-scout-tan"></span>
+    <!-- ВСПЛЫВАЮЩЕЕ УВЕДОМЛЕНИЕ (TOAST) -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 hidden bg-charcoal/95 backdrop-blur-md border border-corps-brass/40 text-corps-parchment px-5 py-3.5 rounded-xl shadow-2xl items-center gap-3 text-xs font-mono tracking-wide">
+        <span class="w-2 h-2 rounded-full bg-corps-brass animate-pulse"></span>
         <span id="toastMsg">Изменения сохранены</span>
     </div>
 
-    <!-- Навигационная панель -->
-    <header class="sticky top-0 z-40 backdrop-blur-md bg-scout-bg/90 border-b border-scout-border">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-            <!-- Логотип / Имя (Тройной клик по эмблеме открывает вход для автора) -->
-            <div class="flex items-center gap-3 group shrink-0 select-none">
-                <div id="secretCrestTrigger" onclick="handleCrestClick()" class="w-9 h-9 rounded-xl bg-scout-green/80 border border-scout-tan/30 text-scout-tan flex items-center justify-center shadow-sm group-hover:border-scout-tan transition-colors cursor-pointer" title="Архив Разведкорпуса">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 7c4 0 7 2 9 5 2-3 5-5 9-5M5 11c3 0 5 1.5 7 4 2-2.5 4-4 7-4M7 15c2 0 3.5 1 5 3 1.5-2 3-3 5-3"/>
-                    </svg>
-                </div>
-                <a href="#top" class="block">
-                    <span class="text-[10px] uppercase tracking-[0.22em] text-scout-muted block leading-none mb-0.5">Архив Разведкорпуса</span>
-                    <span class="serif-title text-lg font-semibold tracking-wider text-scout-text">KELLY KERN</span>
-                </a>
+    <!-- ВЕРХНЯЯ ПАНЕЛЬ РЕДАКТОРА (ПОЯВЛЯЕТСЯ ТОЛЬКО ПОСЛЕ SHIFT+E И ВВОДА ПАРОЛЯ 76717671) -->
+    <div id="editorToolbar" class="editor-only-block sticky top-0 z-50 bg-[#0d1210]/95 backdrop-blur-md border-b border-corps-brass/40 px-4 py-3 shadow-2xl">
+        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-3">
+                <span class="px-2.5 py-1 rounded bg-corps-brass text-obsidian font-mono text-[11px] font-bold uppercase tracking-widest">
+                    РЕЖИМ РЕДАКТОРА АКТИВЕН
+                </span>
+                <span class="text-xs text-corps-parchment/80">
+                    Кликните на любой <span class="text-corps-brass underline decoration-dashed">текст</span>, чтобы изменить его, или нажмите на <span class="text-corps-brass underline decoration-dashed">фотографию</span> для замены.
+                </span>
             </div>
-
-            <!-- Навигационные ссылки (видны всем посетителям) -->
-            <nav class="hidden md:flex items-center gap-7 text-sm font-normal text-scout-muted">
-                <a href="#dossier" class="hover:text-scout-tan transition-colors">Личное дело</a>
-                <a href="#psychology" class="hover:text-scout-tan transition-colors">Характер</a>
-                <a href="#biography" class="hover:text-scout-tan transition-colors">Биография</a>
-                <a href="#gallery" class="hover:text-scout-tan transition-colors">Фотохроника</a>
-            </nav>
-
-            <!-- Статус архива для обычных посетителей / Кнопки управления ТОЛЬКО для автора -->
-            <div class="flex items-center gap-2">
-                <!-- Обычные посетители видят только скромную архивную метку -->
-                <div id="visitorBadge" class="text-[11px] uppercase tracking-widest text-scout-muted/70 border border-scout-border px-3 py-1.5 rounded-xl bg-scout-card/50">
-                    Дело №850-KK
-                </div>
-
-                <!-- Кнопки автора (полностью скрыты для обычных пользователей) -->
-                <button id="toggleEditBtn" onclick="toggleEditMode()" class="owner-only px-3.5 py-2 rounded-xl border border-scout-tan bg-scout-green/40 text-xs font-medium text-scout-text items-center gap-2 transition-all">
-                    <svg class="w-4 h-4 text-scout-tan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                    <span id="editBtnText">Замена фото: ВКЛ</span>
+            <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto justify-end">
+                <button onclick="openPhotoModal('add')" class="px-3.5 py-1.5 rounded-lg bg-corps-green hover:bg-corps-emerald text-white text-xs font-medium transition-colors flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    <span>Добавить фото</span>
                 </button>
-
-                <button onclick="openGithubModal()" class="owner-only p-2 rounded-xl border border-scout-border bg-scout-card hover:border-scout-tan/60 text-scout-tan transition-colors" title="Настройки автора и экспорт для GitHub">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    </svg>
+                <button onclick="exportCleanHTML()" class="px-4 py-1.5 rounded-lg bg-corps-brass text-obsidian font-semibold text-xs hover:opacity-90 transition-opacity flex items-center gap-1.5 shadow-lg">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    <span>Скачать готовый index.html для GitHub</span>
                 </button>
-
-                <button onclick="lockOwnerMode()" class="owner-only px-3 py-2 rounded-xl border border-rose-500/40 bg-rose-950/30 hover:bg-rose-900/50 text-xs font-medium text-rose-300 items-center gap-1.5 transition-colors" title="Скрыть панель и посмотреть глазами посетителя">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                    <span class="hidden sm:inline">Выйти</span>
+                <button onclick="resetAllChanges()" class="px-3 py-1.5 rounded-lg border border-white/10 text-corps-muted hover:text-rose-400 text-xs transition-colors" title="Сбросить локальные правки к исходным">
+                    Сброс
+                </button>
+                <button onclick="exitEditorMode()" class="px-3 py-1.5 rounded-lg border border-rose-500/30 bg-rose-950/30 text-rose-300 hover:bg-rose-900/40 text-xs transition-colors">
+                    Выйти
                 </button>
             </div>
         </div>
+    </div>
 
-        <!-- Панель конструктора фото (видна ТОЛЬКО автору после ввода пароля) -->
-        <div id="editToolbar" class="owner-only-block bg-[#101416] border-t border-scout-tan/40 px-4 py-3 shadow-xl">
-            <div class="max-w-6xl mx-auto flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3 text-xs">
-                <div class="flex flex-wrap items-center gap-2.5 text-scout-text">
-                    <span class="px-2.5 py-0.5 rounded-md bg-scout-tan text-scout-bg font-bold uppercase tracking-wider">Режим автора активен</span>
-                    <span class="text-scout-muted">Обычные посетители не видят эту панель. Нажмите на любое фото ниже для замены.</span>
+    <!-- МИНИМАЛИСТИЧНАЯ НАВИГАЦИЯ -->
+    <header class="sticky top-0 z-40 backdrop-blur-xl bg-obsidian/80 border-b border-borderline">
+        <div class="max-w-7xl mx-auto px-4 sm:px-8 h-20 flex items-center justify-between">
+            <!-- Левая часть: Эмблема и имя -->
+            <a href="#top" class="flex items-center gap-4 group focus:outline-none">
+                <div class="w-10 h-10 rounded-full bg-charcoal border border-corps-brass/30 flex items-center justify-center text-corps-brass group-hover:border-corps-brass group-hover:bg-corps-green/30 transition-all duration-300">
+                    <!-- Минималистичный символ Крыльев Свободы -->
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 7c4 0 7 2 9 5 2-3 5-5 9-5M5 11c3 0 5 1.5 7 4 2-2.5 4-4 7-4M7 15c2 0 3.5 1 5 3 1.5-2 3-3 5-3"/>
+                    </svg>
                 </div>
-                <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
-                    <button onclick="openPhotoModal('add')" class="px-3 py-1.5 rounded-lg bg-scout-green hover:bg-scout-greenHover text-white font-medium transition-colors">
-                        + Добавить фото в галерею
-                    </button>
-                    <button onclick="openGithubModal()" class="px-3 py-1.5 rounded-lg border border-scout-border bg-scout-card hover:border-scout-tan/50 text-scout-text transition-colors">
-                        Пароль и памятка
-                    </button>
-                    <button onclick="exportStandaloneHTML()" class="px-3.5 py-1.5 rounded-lg bg-scout-tan text-scout-bg font-semibold hover:opacity-90 transition-opacity flex items-center gap-1.5 shadow-md">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                        <span>Скачать чистый index.html для GitHub</span>
-                    </button>
-                    <button onclick="resetDefaultPhotos()" class="px-2.5 py-1.5 rounded-lg border border-scout-border text-scout-muted hover:text-rose-400 transition-colors" title="Вернуть исходные 6 фото">
-                        Сброс
-                    </button>
+                <div>
+                    <span class="font-mono text-[10px] uppercase tracking-[0.28em] text-corps-muted block">SURVEY CORPS ARCHIVE</span>
+                    <span class="font-serif text-xl sm:text-2xl font-semibold tracking-wider text-corps-parchment">KELLY KERN</span>
+                </div>
+            </a>
+
+            <!-- Центр: Ссылки навигации -->
+            <nav class="hidden md:flex items-center gap-10 text-xs uppercase tracking-[0.2em] text-corps-muted font-medium">
+                <a href="#dossier" class="hover:text-corps-brass transition-colors">Досье</a>
+                <a href="#psyche" class="hover:text-corps-brass transition-colors">Психотип</a>
+                <a href="#biography" class="hover:text-corps-brass transition-colors">Биография</a>
+                <a href="#gallery" class="hover:text-corps-brass transition-colors">Фотохроника</a>
+            </nav>
+
+            <!-- Правая часть: Архивный индекс -->
+            <div class="flex items-center gap-3">
+                <div class="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-charcoal border border-borderline font-mono text-[11px] text-corps-muted">
+                    <span class="w-1.5 h-1.5 rounded-full bg-corps-emerald"></span>
+                    <span data-editable="true">TROST // ID-850</span>
                 </div>
             </div>
         </div>
     </header>
 
-    <main id="top" class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-20 sm:space-y-28">
+    <!-- ОСНОВНОЙ КОНТЕНТ -->
+    <main id="top" class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-8 py-12 sm:py-20 space-y-28 sm:space-y-36">
 
-        <!-- РАЗДЕЛ 1: ГЛАВНОЕ ДОСЬЕ И ПОРТРЕТ -->
-        <section id="dossier" class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+        <!-- СЕКЦИЯ 1: ГЛАВНЫЙ РАЗВОРОТ ДОСЬЕ (АСИММЕТРИЧНАЯ КОМПОНОВКА) -->
+        <section id="dossier" class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
             
-            <!-- Левая колонка: Главный портрет -->
-            <div class="lg:col-span-5 space-y-3">
-                <div onclick="handleImageClick('slot', 'hero')" class="relative group overflow-hidden rounded-2xl bg-scout-card border border-scout-border shadow-xl aspect-[4/5] cursor-pointer editable-slot">
+            <!-- ЛЕВАЯ КОЛОНКА: ПОРТРЕТ И ПАСПОРТНАЯ КАРТОЧКА (STICKY) -->
+            <div class="lg:col-span-5 lg:sticky lg:top-28 space-y-6">
+                
+                <!-- Рамка главного портрета -->
+                <div class="relative group rounded-2xl overflow-hidden bg-charcoal border border-borderline shadow-2xl aspect-[4/5]">
                     <img 
-                        id="heroMainImg"
+                        id="slot-hero"
                         src="Gemini_Generated_Image_uzp9lguzp9lguzp9.jpg" 
-                        alt="Келли Кёрн — Портрет" 
-                        onerror="this.src='https://placehold.co/800x1000/131618/a88458?text=Kelly+Kern'"
-                        class="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                        alt="Келли Кёрн" 
+                        onclick="handleImageInteraction('slot', 'hero')"
+                        onerror="this.src='https://placehold.co/800x1000/111315/c8b28e?text=Kelly+Kern'"
+                        class="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105 cursor-pointer"
                     >
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80"></div>
-                    
-                    <!-- Оверлей замены в режиме редактирования -->
-                    <div class="edit-overlay absolute inset-0 bg-black/70 backdrop-blur-xs flex-col items-center justify-center gap-2 p-4 text-center">
-                        <span class="px-4 py-2 rounded-xl bg-scout-tan text-scout-bg font-semibold text-xs shadow-lg">Заменить главное фото</span>
-                        <span class="text-[11px] text-scout-text/80">Нажмите, чтобы выбрать файл или указать путь</span>
+                    <!-- Тонкий градиент снизу -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-obsidian/90 via-obsidian/20 to-transparent pointer-events-none"></div>
+
+                    <!-- Верхний бейдж на фото -->
+                    <div class="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none">
+                        <span class="px-3 py-1 rounded-full bg-obsidian/70 backdrop-blur-md border border-white/10 font-mono text-[10px] uppercase tracking-[0.2em] text-corps-brass">
+                            ПОЛЕВОЕ ДОСЬЕ
+                        </span>
+                        <span class="font-mono text-[10px] text-white/60 bg-obsidian/60 backdrop-blur-md px-2.5 py-1 rounded-md border border-white/10">
+                            01 // PORTRAIT
+                        </span>
                     </div>
 
-                    <div class="absolute bottom-4 left-4 right-4 flex items-end justify-between text-white pointer-events-none">
+                    <!-- Нижняя подпись на фото -->
+                    <div class="absolute bottom-5 left-5 right-5 flex items-end justify-between pointer-events-none">
                         <div>
-                            <span class="text-[10px] uppercase tracking-[0.2em] text-scout-tan block">Полевой архив</span>
-                            <p class="serif-title text-2xl font-medium">Солдат Разведкорпуса</p>
+                            <p class="font-mono text-[10px] uppercase tracking-[0.25em] text-corps-brass mb-1" data-editable="true">РАЗВЕДКОРПУС</p>
+                            <h2 class="font-serif text-3xl font-medium text-white tracking-wide" data-editable="true">Келли Кёрн</h2>
                         </div>
-                        <span class="text-xs bg-black/50 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/15">
-                            Фото 01
+                    </div>
+
+                    <!-- Оверлей замены фото (виден только в режиме редактора) -->
+                    <div onclick="openPhotoModal('slot', 'hero')" class="img-edit-overlay absolute inset-0 bg-obsidian/75 backdrop-blur-xs flex-col items-center justify-center gap-2 p-4 text-center cursor-pointer transition-opacity">
+                        <span class="px-4 py-2 rounded-full bg-corps-brass text-obsidian font-mono text-xs font-bold uppercase tracking-wider shadow-lg">
+                            Заменить портрет
                         </span>
+                        <span class="text-xs text-corps-parchment/80">Кликните для выбора фото</span>
                     </div>
                 </div>
 
-                <!-- Мини-галерея быстрого переключения под портретом -->
-                <div id="heroThumbnails" class="grid grid-cols-5 gap-2">
+                <!-- Миниатюры быстрого просмотра -->
+                <div id="heroThumbnails" class="grid grid-cols-6 gap-2">
                     <!-- Заполняется автоматически через JS -->
                 </div>
+
+                <!-- Таблица основных метрик (Паспорт) -->
+                <div class="rounded-2xl bg-charcoal/90 border border-borderline p-6 space-y-4 shadow-xl">
+                    <div class="flex items-center justify-between border-b border-borderline pb-3">
+                        <span class="font-mono text-[11px] uppercase tracking-[0.2em] text-corps-brass">АНКЕТНЫЕ ДАННЫЕ</span>
+                        <span class="font-mono text-[11px] text-corps-muted">ARCHIVE REG.</span>
+                    </div>
+
+                    <dl class="divide-y divide-borderline text-sm">
+                        <div class="py-2.5 flex items-center justify-between gap-4">
+                            <dt class="text-corps-muted font-light">Имя</dt>
+                            <dd class="font-medium text-corps-parchment text-right" data-editable="true">Келли Кёрн</dd>
+                        </div>
+                        <div class="py-2.5 flex items-center justify-between gap-4">
+                            <dt class="text-corps-muted font-light">Прозвища</dt>
+                            <dd class="font-mono text-corps-muted text-right" data-editable="true">—</dd>
+                        </div>
+                        <div class="py-2.5 flex items-center justify-between gap-4">
+                            <dt class="text-corps-muted font-light">Пол</dt>
+                            <dd class="font-medium text-corps-parchment text-right" data-editable="true">Женский</dd>
+                        </div>
+                        <div class="py-2.5 flex items-center justify-between gap-4">
+                            <dt class="text-corps-muted font-light">Возраст</dt>
+                            <dd class="font-medium text-corps-parchment text-right" data-editable="true">16 лет</dd>
+                        </div>
+                        <div class="py-2.5 flex items-center justify-between gap-4">
+                            <dt class="text-corps-muted font-light">Рост</dt>
+                            <dd class="font-medium text-corps-parchment text-right" data-editable="true">167 см</dd>
+                        </div>
+                        <div class="py-2.5 flex items-center justify-between gap-4">
+                            <dt class="text-corps-muted font-light">Место рождения</dt>
+                            <dd class="font-medium text-corps-parchment text-right" data-editable="true">Утопия</dd>
+                        </div>
+                        <div class="py-2.5 flex items-center justify-between gap-4">
+                            <dt class="text-corps-muted font-light">Сейчас находится в</dt>
+                            <dd class="font-medium text-corps-parchment text-right flex items-center gap-2">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                                <span data-editable="true">Трост</span>
+                            </dd>
+                        </div>
+                        <div class="pt-2.5 flex items-center justify-between gap-4">
+                            <dt class="text-corps-muted font-light">Специализация</dt>
+                            <dd class="font-medium text-corps-brass text-right" data-editable="true">солдат</dd>
+                        </div>
+                    </dl>
+                </div>
+
             </div>
 
-            <!-- Правая колонка: Паспортные данные и Внешность -->
-            <div class="lg:col-span-7 space-y-8">
-                <div class="space-y-3 border-b border-scout-border pb-6">
-                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-scout-green/30 border border-scout-tan/30 text-scout-tan text-xs font-medium tracking-wide uppercase">
-                        <span>Оригинальный персонаж вселенной</span>
+            <!-- ПРАВАЯ КОЛОНКА: РЕДАКЦИОННЫЙ РАЗВОРОТ, ЦИТАТА, ВНЕШНОСТЬ, МОТИВАЦИЯ И ПСИХОТИП -->
+            <div class="lg:col-span-7 space-y-12">
+
+                <!-- Заголовок досье -->
+                <div class="space-y-4 border-b border-borderline pb-8">
+                    <div class="inline-flex items-center gap-2.5 px-3.5 py-1 rounded-full bg-corps-green/25 border border-corps-brass/30 text-corps-brass font-mono text-[11px] uppercase tracking-[0.2em]">
+                        <span data-editable="true">ОРИГИНАЛЬНЫЙ ПЕРСОНАЖ ВСЕЛЕННОЙ</span>
                     </div>
-                    <h1 class="serif-title text-4xl sm:text-6xl font-bold tracking-tight text-scout-text leading-none">
-                        Келли Кёрн <span class="font-normal text-2xl sm:text-3xl text-scout-muted block sm:inline sm:ml-2">/ Kelly Kern</span>
+                    <h1 class="font-serif text-5xl sm:text-7xl font-normal tracking-tight text-white leading-[0.95]" data-editable="true">
+                        Келли Кёрн
                     </h1>
-                </div>
-
-                <!-- Цитата-девиз -->
-                <blockquote class="relative p-5 sm:p-6 rounded-2xl bg-scout-card border border-scout-border shadow-inner">
-                    <div class="text-scout-tan text-3xl serif-title leading-none mb-1">“ ”</div>
-                    <p class="serif-title italic text-xl sm:text-2xl text-scout-text/90 leading-relaxed">
-                        Нельзя проводить жизнь с вечно хмурым лицом, а иначе как получать от жизни удовольствие?
+                    <p class="font-mono text-xs uppercase tracking-[0.25em] text-corps-muted" data-editable="true">
+                        KELLY KERN // УТОПИЯ — ТРОСТ // СОЛДАТ РАЗВЕДКОРПУСА
                     </p>
-                </blockquote>
-
-                <!-- Таблица анкетных данных -->
-                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-                    <div class="p-4 rounded-xl bg-scout-card border border-scout-border">
-                        <span class="text-[11px] uppercase tracking-wider text-scout-muted block mb-1">Имя</span>
-                        <span class="text-base font-medium text-scout-text">Келли Кёрн</span>
-                    </div>
-                    <div class="p-4 rounded-xl bg-scout-card border border-scout-border">
-                        <span class="text-[11px] uppercase tracking-wider text-scout-muted block mb-1">Прозвища</span>
-                        <span class="text-base font-medium text-scout-muted">—</span>
-                    </div>
-                    <div class="p-4 rounded-xl bg-scout-card border border-scout-border">
-                        <span class="text-[11px] uppercase tracking-wider text-scout-muted block mb-1">Пол</span>
-                        <span class="text-base font-medium text-scout-text">Женский</span>
-                    </div>
-                    <div class="p-4 rounded-xl bg-scout-card border border-scout-border">
-                        <span class="text-[11px] uppercase tracking-wider text-scout-muted block mb-1">Возраст</span>
-                        <span class="text-base font-medium text-scout-text">16 лет</span>
-                    </div>
-                    <div class="p-4 rounded-xl bg-scout-card border border-scout-border">
-                        <span class="text-[11px] uppercase tracking-wider text-scout-muted block mb-1">Рост</span>
-                        <span class="text-base font-medium text-scout-text">167 см</span>
-                    </div>
-                    <div class="p-4 rounded-xl bg-scout-card border border-scout-border">
-                        <span class="text-[11px] uppercase tracking-wider text-scout-muted block mb-1">Специализация</span>
-                        <span class="text-base font-medium text-scout-tan">Солдат (Разведкорпус)</span>
-                    </div>
-                    <div class="p-4 rounded-xl bg-scout-card border border-scout-border">
-                        <span class="text-[11px] uppercase tracking-wider text-scout-muted block mb-1">Место рождения</span>
-                        <span class="text-base font-medium text-scout-text">Утопия</span>
-                    </div>
-                    <div class="p-4 rounded-xl bg-scout-card border border-scout-border col-span-2">
-                        <span class="text-[11px] uppercase tracking-wider text-scout-muted block mb-1">Сейчас находится в</span>
-                        <span class="text-base font-medium text-scout-text flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                            Трост
-                        </span>
-                    </div>
                 </div>
 
-                <!-- Блок внешности и мотивации -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                    <div class="p-5 rounded-2xl bg-scout-card border border-scout-border space-y-2">
-                        <div class="flex items-center justify-between">
-                            <h2 class="text-xs uppercase tracking-[0.18em] text-scout-tan font-semibold">Внешность</h2>
-                            <span class="text-xs text-scout-muted">01</span>
-                        </div>
-                        <p class="text-sm leading-relaxed text-scout-text/85">
-                            Светловолосая девушка с голубыми глазами и невысоким ростом, несколько выраженными скулами и вечной ухмылкой на лице.
+                <!-- Эпиграф / Цитата -->
+                <div class="relative p-8 sm:p-10 rounded-2xl bg-gradient-to-br from-charcoal to-obsidian border border-borderline shadow-xl overflow-hidden">
+                    <span class="font-serif text-7xl text-corps-brass/20 absolute -top-2 left-6 select-none pointer-events-none">“</span>
+                    <div class="relative z-10 space-y-3">
+                        <p class="font-serif italic text-2xl sm:text-3xl text-corps-parchment leading-relaxed" data-editable="true">
+                            Чувство юмора она считала частью собственной жизни и считала, что нельзя проводить жизнь с вечно хмурым лицом, а иначе как получать от жизни удовольствие?
                         </p>
-                    </div>
-
-                    <div class="p-5 rounded-2xl bg-scout-card border border-scout-border space-y-2">
-                        <div class="flex items-center justify-between">
-                            <h2 class="text-xs uppercase tracking-[0.18em] text-scout-tan font-semibold">Мотивация персонажа</h2>
-                            <span class="text-xs text-scout-muted">02</span>
+                        <div class="pt-2 flex items-center gap-3">
+                            <span class="h-px w-8 bg-corps-brass/50"></span>
+                            <span class="font-mono text-[11px] uppercase tracking-[0.2em] text-corps-brass" data-editable="true">ЖИЗНЕННОЕ КРЕДО КЕЛЛИ</span>
                         </div>
-                        <p class="text-sm leading-relaxed text-scout-text/85">
-                            Главная её мотивация — это жить жизнь достойно. Она не загоняет себя в рамки правил и законов. Пока она достаточно молода — ей, конечно, хочется жить так, как этого хочет подросток: действовать здесь и сейчас и получать эмоции от собственной жизни.
-                        </p>
                     </div>
                 </div>
-            </div>
-        </section>
 
-        <!-- РАЗДЕЛ 2: ПСИХОЛОГИЧЕСКИЙ ПОРТРЕТ (ПРИВЫЧКИ, СИМПАТИИ, АНТИПАТИИ) -->
-        <section id="psychology" class="space-y-8 pt-6 border-t border-scout-border">
-            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
-                <div>
-                    <span class="text-xs uppercase tracking-[0.2em] text-scout-muted block mb-1">Психологический профиль</span>
-                    <h2 class="serif-title text-3xl sm:text-4xl font-semibold text-scout-text">Характер и наклонности</h2>
-                </div>
-                <p class="text-xs text-scout-muted uppercase tracking-widest">Личный архив // Раздел II</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Привычки -->
-                <div class="p-6 rounded-2xl bg-scout-card border border-scout-border flex flex-col justify-between space-y-4">
-                    <div class="space-y-3">
-                        <div class="w-10 h-10 rounded-xl bg-scout-tan/15 text-scout-tan flex items-center justify-center">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
+                <!-- Внешность и Мотивация -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Внешность -->
+                    <div class="p-7 rounded-2xl bg-charcoal/80 border border-borderline flex flex-col justify-between space-y-5 hover:border-corps-brass/30 transition-colors">
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="font-mono text-[11px] uppercase tracking-[0.2em] text-corps-brass">ВНЕШНОСТЬ</span>
+                                <span class="font-mono text-[11px] text-corps-muted">01</span>
+                            </div>
+                            <p class="text-sm sm:text-base leading-relaxed text-corps-parchment/90 font-light" data-editable="true">
+                                Светловолосая девушка с голубыми глазами и невысоким ростом, несколько выраженными скулами и вечной ухмылкой на лице.
+                            </p>
                         </div>
-                        <h3 class="serif-title text-2xl font-semibold text-scout-text">Привычки</h3>
-                        <p class="text-sm leading-relaxed text-scout-text/80">
+                        <div class="pt-4 border-t border-borderline flex items-center justify-between font-mono text-[11px] text-corps-muted">
+                            <span>ОСОБАЯ ПРИМЕТА</span>
+                            <span class="text-corps-parchment" data-editable="true">Вечная ухмылка</span>
+                        </div>
+                    </div>
+
+                    <!-- Мотивация персонажа -->
+                    <div class="p-7 rounded-2xl bg-charcoal/80 border border-borderline flex flex-col justify-between space-y-5 hover:border-corps-brass/30 transition-colors">
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="font-mono text-[11px] uppercase tracking-[0.2em] text-corps-brass">МОТИВАЦИЯ ПЕРСОНАЖА</span>
+                                <span class="font-mono text-[11px] text-corps-muted">02</span>
+                            </div>
+                            <p class="text-sm sm:text-base leading-relaxed text-corps-parchment/90 font-light" data-editable="true">
+                                Главная ее мотивация - это жить жизнь достойно. Она не загоняет себя в рамки правил и законов. Пока она достаточно молода - ей конечно хочется жить так, как этого хочет подросток - действовать здесь и сейчас и получать эмоции от собственной жизни.
+                            </p>
+                        </div>
+                        <div class="pt-4 border-t border-borderline flex items-center justify-between font-mono text-[11px] text-corps-muted">
+                            <span>ДВИЖУЩАЯ СИЛА</span>
+                            <span class="text-corps-parchment" data-editable="true">Действовать здесь и сейчас</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ПСИХОЛОГИЧЕСКИЙ ПРОФИЛЬ (ПРИВЫЧКИ, СИМПАТИИ, АНТИПАТИИ) -->
+                <div id="psyche" class="space-y-6 pt-4">
+                    <div class="flex items-end justify-between border-b border-borderline pb-4">
+                        <div>
+                            <span class="font-mono text-[11px] uppercase tracking-[0.22em] text-corps-muted block mb-1">ПСИХОЛОГИЧЕСКИЙ РАЗБОР</span>
+                            <h2 class="font-serif text-3xl sm:text-4xl font-normal text-white" data-editable="true">Характер, привычки и принципы</h2>
+                        </div>
+                        <span class="font-mono text-xs text-corps-brass">SEC // II</span>
+                    </div>
+
+                    <!-- Привычки (широкая карточка) -->
+                    <div class="p-7 rounded-2xl bg-charcoal/80 border border-borderline space-y-3">
+                        <div class="flex items-center gap-3">
+                            <span class="w-2 h-2 rounded-full bg-corps-brass"></span>
+                            <h3 class="font-mono text-xs uppercase tracking-[0.2em] text-corps-brass" data-editable="true">ПРИВЫЧКИ</h3>
+                        </div>
+                        <p class="text-sm sm:text-base leading-relaxed text-corps-parchment/90 font-light" data-editable="true">
                             Язвительность и шутки. Чувство юмора она считала частью собственной жизни и считала, что нельзя проводить жизнь с вечно хмурым лицом, а иначе как получать от жизни удовольствие?
                         </p>
                     </div>
-                    <div class="pt-4 border-t border-scout-border flex items-center justify-between text-[11px] text-scout-muted uppercase tracking-wider">
-                        <span>Особенность</span>
-                        <span>Вечная ухмылка</span>
+
+                    <!-- Симпатии и Антипатии -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Предпочтения и симпатии -->
+                        <div class="p-7 rounded-2xl bg-charcoal/80 border border-borderline space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2.5">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                                    <h3 class="font-mono text-xs uppercase tracking-[0.18em] text-corps-parchment" data-editable="true">ПРЕДПОЧТЕНИЯ И СИМПАТИИ</h3>
+                                </div>
+                                <button onclick="addListItem('likesList')" class="editor-only text-[11px] font-mono text-corps-brass hover:underline">+ пункт</button>
+                            </div>
+                            <ul id="likesList" class="space-y-3.5 text-sm leading-relaxed text-corps-parchment/85 font-light">
+                                <li class="flex items-start gap-3">
+                                    <span class="text-corps-brass font-mono text-xs mt-0.5">—</span>
+                                    <span class="flex-1" data-editable="true">Любит мясо, приготовленное на углях и костре.</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <span class="text-corps-brass font-mono text-xs mt-0.5">—</span>
+                                    <span class="flex-1" data-editable="true">Нарушение правил. Она могла делать это специально, чтобы проверить себя, сможет ли она из этого выкрутиться или не спалиться.</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Антипатия и избегания -->
+                        <div class="p-7 rounded-2xl bg-charcoal/80 border border-borderline space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2.5">
+                                    <span class="w-2 h-2 rounded-full bg-rose-400"></span>
+                                    <h3 class="font-mono text-xs uppercase tracking-[0.18em] text-corps-parchment" data-editable="true">АНТИПАТИЯ И ИЗБЕГАНИЯ</h3>
+                                </div>
+                                <button onclick="addListItem('dislikesList')" class="editor-only text-[11px] font-mono text-corps-brass hover:underline">+ пункт</button>
+                            </div>
+                            <ul id="dislikesList" class="space-y-3.5 text-sm leading-relaxed text-corps-parchment/85 font-light">
+                                <li class="flex items-start gap-3">
+                                    <span class="text-rose-400/80 font-mono text-xs mt-0.5">—</span>
+                                    <span class="flex-1" data-editable="true">Трудные на подъем люди/чрезмерно пассивные.</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <span class="text-rose-400/80 font-mono text-xs mt-0.5">—</span>
+                                    <span class="flex-1" data-editable="true">Беспринципные, не имеющие никаких моральных рамок и принципов.</span>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Предпочтения и симпатии -->
-                <div class="p-6 rounded-2xl bg-scout-card border border-scout-border flex flex-col justify-between space-y-4">
-                    <div class="space-y-3">
-                        <div class="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M5 13l4 4L19 7"/>
-                            </svg>
-                        </div>
-                        <h3 class="serif-title text-2xl font-semibold text-scout-text">Предпочтения и симпатии</h3>
-                        <ul class="space-y-3 text-sm leading-relaxed text-scout-text/80">
-                            <li class="flex items-start gap-2.5">
-                                <span class="w-1.5 h-1.5 rounded-full bg-scout-tan mt-2 shrink-0"></span>
-                                <span>Любит мясо, приготовленное на углях и костре.</span>
-                            </li>
-                            <li class="flex items-start gap-2.5">
-                                <span class="w-1.5 h-1.5 rounded-full bg-scout-tan mt-2 shrink-0"></span>
-                                <span>Нарушение правил. Она могла делать это специально, чтобы проверить себя, сможет ли она из этого выкрутиться или не спалиться.</span>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="pt-4 border-t border-scout-border flex items-center justify-between text-[11px] text-scout-muted uppercase tracking-wider">
-                        <span>Стимул</span>
-                        <span>Адреналин и риск</span>
-                    </div>
-                </div>
-
-                <!-- Антипатия и избегания -->
-                <div class="p-6 rounded-2xl bg-scout-card border border-scout-border flex flex-col justify-between space-y-4">
-                    <div class="space-y-3">
-                        <div class="w-10 h-10 rounded-xl bg-rose-500/15 text-rose-400 flex items-center justify-center">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                        </div>
-                        <h3 class="serif-title text-2xl font-semibold text-scout-text">Антипатия и избегания</h3>
-                        <ul class="space-y-3 text-sm leading-relaxed text-scout-text/80">
-                            <li class="flex items-start gap-2.5">
-                                <span class="w-1.5 h-1.5 rounded-full bg-rose-500 mt-2 shrink-0"></span>
-                                <span>Трудные на подъем люди / чрезмерно пассивные.</span>
-                            </li>
-                            <li class="flex items-start gap-2.5">
-                                <span class="w-1.5 h-1.5 rounded-full bg-rose-500 mt-2 shrink-0"></span>
-                                <span>Беспринципные, не имеющие никаких моральных рамок и принципов.</span>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="pt-4 border-t border-scout-border flex items-center justify-between text-[11px] text-scout-muted uppercase tracking-wider">
-                        <span>Принцип</span>
-                        <span>Честность перед своими</span>
-                    </div>
-                </div>
             </div>
         </section>
 
-        <!-- РАЗДЕЛ 3: БИОГРАФИЯ -->
-        <section id="biography" class="space-y-8 pt-6 border-t border-scout-border">
-            <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <!-- СЕКЦИЯ 2: БИОГРАФИЯ (ЖУРНАЛЬНЫЙ РАЗВОРОТ С ПЕРЕКЛЮЧЕНИЕМ ГЛАВ) -->
+        <section id="biography" class="space-y-10 pt-12 border-t border-borderline">
+            <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
                 <div>
-                    <span class="text-xs uppercase tracking-[0.2em] text-scout-muted block mb-1">Хроника жизни</span>
-                    <h2 class="serif-title text-3xl sm:text-4xl font-semibold text-scout-text">Биография Келли Кёрн</h2>
+                    <span class="font-mono text-[11px] uppercase tracking-[0.25em] text-corps-brass block mb-2">ЛИЧНОЕ ДЕЛО // ИСТОРИЯ ПРОИСХОЖДЕНИЯ</span>
+                    <h2 class="font-serif text-4xl sm:text-5xl font-normal text-white" data-editable="true">Биография Келли Кёрн</h2>
                 </div>
 
-                <!-- Переключатели глав -->
-                <div class="flex flex-wrap items-center gap-2">
-                    <button onclick="selectChapter(1)" id="tabBtn1" class="chapter-tab px-4 py-2 rounded-xl text-xs font-medium transition-all bg-scout-green text-white shadow-sm">
-                        Глава 1. Рождение
+                <!-- Навигация по главам -->
+                <div class="flex flex-wrap items-center gap-2 bg-charcoal p-1.5 rounded-xl border border-borderline">
+                    <button onclick="switchChapter(1)" id="chapTab1" class="px-4 py-2 rounded-lg font-mono text-xs transition-all bg-corps-green text-white shadow">
+                        I. Рождение
                     </button>
-                    <button onclick="selectChapter(2)" id="tabBtn2" class="chapter-tab px-4 py-2 rounded-xl text-xs font-medium transition-all bg-scout-card text-scout-muted border border-scout-border hover:border-scout-tan/50">
-                        Глава 2. Будни в доме Робина
+                    <button onclick="switchChapter(2)" id="chapTab2" class="px-4 py-2 rounded-lg font-mono text-xs transition-all text-corps-muted hover:text-corps-parchment">
+                        II. Будни в доме Робина
                     </button>
-                    <button onclick="selectChapter(3)" id="tabBtn3" class="chapter-tab px-4 py-2 rounded-xl text-xs font-medium transition-all bg-scout-card text-scout-muted border border-scout-border hover:border-scout-tan/50">
-                        Глава 3. Борьба за жизнь после
+                    <button onclick="switchChapter(3)" id="chapTab3" class="px-4 py-2 rounded-lg font-mono text-xs transition-all text-corps-muted hover:text-corps-parchment">
+                        III. Борьба за жизнь после
                     </button>
-                    <button onclick="selectChapter(0)" id="tabBtn0" class="chapter-tab px-4 py-2 rounded-xl text-xs font-medium transition-all bg-scout-card text-scout-muted border border-scout-border hover:border-scout-tan/50">
-                        Читать целиком
+                    <button onclick="switchChapter(0)" id="chapTab0" class="px-4 py-2 rounded-lg font-mono text-xs transition-all text-corps-muted hover:text-corps-parchment">
+                        Все главы сразу
                     </button>
                 </div>
             </div>
 
             <!-- Контейнер глав -->
-            <div class="space-y-8">
-                
-                <!-- Глава 1 -->
-                <article id="chapter1" class="chapter-card fade-in p-6 sm:p-10 rounded-2xl bg-scout-card border border-scout-border shadow-lg">
-                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                        <div class="lg:col-span-8 space-y-4">
-                            <div class="flex items-center gap-3">
-                                <span class="text-xs font-semibold uppercase tracking-widest px-3 py-1 rounded-md bg-scout-tan/15 text-scout-tan">Глава I</span>
-                                <span class="text-xs text-scout-muted">Сиротский приют Робина Краузе</span>
+            <div class="space-y-12">
+
+                <!-- ГЛАВА 1 -->
+                <article id="bioChapter1" class="fade-in rounded-3xl bg-charcoal/70 border border-borderline p-6 sm:p-12 shadow-2xl">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+                        <div class="lg:col-span-8 space-y-6">
+                            <div class="flex items-center gap-4 border-b border-borderline pb-4">
+                                <span class="font-mono text-xs uppercase tracking-[0.25em] text-corps-brass">ЧАСТЬ ПЕРВАЯ</span>
+                                <span class="text-white/20">•</span>
+                                <span class="font-mono text-xs text-corps-muted" data-editable="true">ПРИЮТ РОБИНА КРАУЗЕ</span>
                             </div>
-                            <h3 class="serif-title text-2xl sm:text-3xl font-bold text-scout-text">Глава 1. Рождение</h3>
-                            <div class="space-y-4 text-sm sm:text-base leading-relaxed text-scout-text/85 font-normal">
-                                <p>
-                                    В свете весеннего дня тишину дома пронзил детский громкий плач. Это был день, когда в свет пришла еще одна жизнь. Келли Кёрн родилась в семье, о которой не знала. Всего через год после ее рождения ребенка уложили под дверь некоего негосударственного учреждения, которое занималось благотворительной деятельностью, забирая под свое крыло детей, которые потеряли семью или от которых отказались по тем или иным причинам. Под такие критерии она и попала. Она не знала причины, почему ее семья поступила с ней таким образом, однако это не заставило ее впасть в отчаяние в будущем. Ей не чуждо слово семьи с рождения, она приспособилась к тому, что имела. Росла в достаточно скромных условиях, которые и сформировали ее характер.
+                            <h3 class="font-serif text-3xl sm:text-4xl font-normal text-white" data-editable="true">Глава 1. Рождение.</h3>
+                            
+                            <div class="space-y-5 text-sm sm:text-base leading-[1.85] text-corps-parchment/85 font-light">
+                                <p data-editable="true">
+                                    В свете весеннего дня тишину дома пронзил детский громкий плач. Это был день когда в свет пришла еще одна жизнь. Келли Кёрн родилась в семье, о которой не знала. Всего через год после ее рождения ребенка уложили под дверь некого негосударственного учреждения, которое занималось благо деятельностью, забирая под свое крыло детей, которые потеряли семью или от которых отказались по тем или иным причинам. Под такие критерии она и попала. Она не знала причины, почему ее семья поступила с ней таким образом, однако это не заставило ее впасть в отчаяние в будущем. Ей не чужда слово семьи с рождения, она приспособилась к тому, что имела. Росла в достаточно скромных условиях, которые и сформировали ее характер.
                                 </p>
-                                <p>
-                                    Благодетелем был Робин Краузе — серьезный, но добрый в своих намерениях бизнесмен, что на пике своей карьеры сам создал место, в котором сможет отдавать деньги на благотворительность. За своими плечами он имел множество пекарен, трактиров, кузнецких уголков и ткацких заведений. Мужчина глубоко верил в религию. Не в ту, в которой говорят о культе Стен. В другого. В одного, что обитает на небе и следит за каждым из людей. Именно поэтому его философия состояла из фразы: <em class="text-scout-tan">«Коль берешь что-то — отдавай равноценное или то, что имеешь»</em>. Он считал, что Бог даровал ему успех и состояние, а в ответ он должен отдать целую жизнь тем, кто нуждается в этом.
+                                <p data-editable="true">
+                                    Благодетелем был Робин Краузе - серьезный, но добрый в своих намерениях бизнесмен, что на пике своей карьеры сам создал место, в котором сможет отдавать деньги на благотворительность. За своими плечами он имел множество пекарен, трактиров, кузнецких уголков и ткацких заведений. Мужчина глубоко верил в религию. Не в ту, в которой говорят о культе Стен. В другого. В одного, что обитает на небе и следит за каждым из людей. Именно поэтому его философия состояла из фразы: “Коль берешь что-то - отдавай равноценное или то, что имеешь”. Он считал, что Бог даровал ему успех и состояние, а в ответ он должен отдать целую жизнь тем, кто нуждается в этом.
                                 </p>
-                                <p>
-                                    Когда он это понял, Робин сначала просто раздавал часть своих денег нуждающимся. Конечно, он не отдавал так, чтобы это напрочь убивало его экономику. Он отдавал столько, сколько может отдать. Для него это часть выручки, а для кого-то — деньги, которые помогут выжить еще хотя бы ближайший месяц. Он отдавал деньги малоимущим, многодетным, инвалидам и героям армии, в том числе тем, что возвращались с экспедиций вне Стен. Поиски тех, кому можно время от времени расплачиваться за его успех, занимали много времени, которого у него было совсем мало. Тогда он продумал концепцию места, в котором он сможет помогать с регулярностью. Несколько домов, где воспитывались дети, у которых нет родителей. Он нанял несколько гувернанток, которые заменяли матерей.
+                                <p data-editable="true">
+                                    Когда он это понял Робин сначала просто раздавал часть своих денег нуждающимся. Конечно он не отдавал так, чтобы это напрочь убивало его экономику. Он отдавал столько, сколько может отдать. Для него это часть выручки, а для кого-то деньги, которые помогут выжить еще хотя бы ближайший месяц. Он отдавал деньги малоимущим, многодетным, инвалидам и героям армии, в том числе тем, что возвращались с экспедиций вне Стен. Поиски тех, кому можно время от времени расплачиваться за его успех занимали много времени, которого у него было совсем мало. Тогда он продумал концепцию места, в котором он сможет помогать с регулярностью. Несколько домов, где воспитывались дети, у которых нет родителей. Он нанял несколько гувернанток, которые заменяли матерей.
                                 </p>
-                                <p>
-                                    Так или иначе росли дети без отцовского внимания. Жизнь в таком месте имела в себе некоторые минусы. Келли росла как душа компании, что, по всей видимости, передалось ей от кровных родителей. Много шутила, много болтала с теми, кто оказался ей ближе. Хотя даже при таких условиях ей доводилось нарываться на проблемы в виде нескольких драк и словесных перепалок.
+                                <p data-editable="true">
+                                    Так или иначе росли дети без отцовского внимания. Жизнь в таком месте имела в себе некоторые минусы. Келли росла как душа компании, что по всей видимости передалось ей от кровных родителей. Много шутила, много болтала с теми, кто оказался ей ближе. Хотя даже при таких условиях ей доводилось нарываться на проблемы в виде нескольких драк и словесных перепалок.
                                 </p>
                             </div>
                         </div>
 
-                        <div class="lg:col-span-4 space-y-3">
-                            <div onclick="handleImageClick('slot', 'chap1')" class="overflow-hidden rounded-xl border border-scout-border aspect-square bg-scout-bg cursor-pointer relative editable-slot group">
+                        <!-- Иллюстрация Главы 1 -->
+                        <div class="lg:col-span-4 space-y-4">
+                            <div class="relative group rounded-2xl overflow-hidden bg-obsidian border border-borderline aspect-[4/5]">
                                 <img 
-                                    id="chap1Img"
+                                    id="slot-chap1"
                                     src="Gemini_Generated_Image_iiqmiiqmiiqmiiqm копия.jpg" 
-                                    alt="Келли Кёрн — ухмылка" 
-                                    onerror="this.src='https://placehold.co/600x600/131618/a88458?text=Глава+1'"
-                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                    alt="Келли Кёрн — Глава 1" 
+                                    onclick="handleImageInteraction('slot', 'chap1')"
+                                    onerror="this.src='https://placehold.co/600x750/111315/c8b28e?text=Chapter+I'"
+                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 cursor-pointer"
                                 >
-                                <div class="edit-overlay absolute inset-0 bg-black/70 backdrop-blur-xs flex-col items-center justify-center gap-2 p-4 text-center">
-                                    <span class="px-3 py-1.5 rounded-xl bg-scout-tan text-scout-bg font-semibold text-xs">Заменить фото Главы 1</span>
+                                <div onclick="openPhotoModal('slot', 'chap1')" class="img-edit-overlay absolute inset-0 bg-obsidian/75 backdrop-blur-xs flex-col items-center justify-center gap-2 p-4 text-center cursor-pointer">
+                                    <span class="px-3.5 py-1.5 rounded-full bg-corps-brass text-obsidian font-mono text-xs font-bold uppercase">Заменить фото Главы 1</span>
                                 </div>
                             </div>
-                            <p class="text-xs text-scout-muted italic text-center">
+                            <p class="font-serif italic text-sm text-corps-muted text-center px-2" data-editable="true">
                                 «Келли росла как душа компании... Много шутила, много болтала с теми, кто оказался ей ближе».
                             </p>
                         </div>
                     </div>
                 </article>
 
-                <!-- Глава 2 -->
-                <article id="chapter2" class="chapter-card hidden fade-in p-6 sm:p-10 rounded-2xl bg-scout-card border border-scout-border shadow-lg">
-                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                        <div class="lg:col-span-8 space-y-4">
-                            <div class="flex items-center gap-3">
-                                <span class="text-xs font-semibold uppercase tracking-widest px-3 py-1 rounded-md bg-scout-tan/15 text-scout-tan">Глава II</span>
-                                <span class="text-xs text-scout-muted">Испытание характером</span>
+                <!-- ГЛАВА 2 -->
+                <article id="bioChapter2" class="hidden fade-in rounded-3xl bg-charcoal/70 border border-borderline p-6 sm:p-12 shadow-2xl">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+                        <div class="lg:col-span-8 space-y-6">
+                            <div class="flex items-center gap-4 border-b border-borderline pb-4">
+                                <span class="font-mono text-xs uppercase tracking-[0.25em] text-corps-brass">ЧАСТЬ ВТОРАЯ</span>
+                                <span class="text-white/20">•</span>
+                                <span class="font-mono text-xs text-corps-muted" data-editable="true">ШКОЛА ВЫЖИВАНИЯ И САМОДОСТАТОЧНОСТИ</span>
                             </div>
-                            <h3 class="serif-title text-2xl sm:text-3xl font-bold text-scout-text">Глава 2. Будни в доме Робина</h3>
-                            <div class="space-y-4 text-sm sm:text-base leading-relaxed text-scout-text/85 font-normal">
-                                <p>
-                                    Жизнь в доме Робина Краузе практически кипела. Домов было несколько, однако они были достаточно тесными для такого количества детей в нем. В одном лишь доме располагалось 20 детей на всего лишь одну гувернантку. Краузе с удовольствием нанял бы еще гувернанток, однако не всякая женщина желала отдавать столько нервов, чтобы следить сразу за 20-ю детьми, что мало знакомы с этикой и культурой поведения в обществе. Общество было не самым прекрасным. В силу того, что детей много и за всеми уследить крайне сложно, выходило так, что приходилось отчасти выживать. В кругу ее общения были те, кто воровал, кто любил драки, кто был остер на язык и кто был не самым честным человеком. Каждый выживал как может. Келли пыталась жить честно, поскольку так считало еще несколько детей, с которыми она подружилась. Но так или иначе в таком положении это достаточно трудно. Бывало, у нее забирали еду, подставляли во время учебы и приходилось выкручиваться, но ее дух от того не падал.
+                            <h3 class="font-serif text-3xl sm:text-4xl font-normal text-white" data-editable="true">Глава 2. Будни в доме Робина</h3>
+                            
+                            <div class="space-y-5 text-sm sm:text-base leading-[1.85] text-corps-parchment/85 font-light">
+                                <p data-editable="true">
+                                    Жизнь в доме Робина Краузе практически кипела. Домов было несколько, однако они были достаточно тесными для такого количества детей в нем. В одном лишь доме располагалось 20 детей на всего-лишь одну гувернантку. Краузе с удовольствием нанял бы еще гувернанток, однако не всякая женщина желала отдавать столько нервов, чтобы следить сразу за 20-тью детьми, что мало знакомы с этикой и культурой поведения в обществе. Общество было не самым прекрасным. В силу того, что детей много и за всеми уследить крайне сложно, выходило так, что приходилось отчасти выживать. В кругу ее общения были те, кто воровал, кто любил драки, кто был остер на язык и кто был не самым честным человеком. Каждый выживал как может. Келли пыталась жить честно, поскольку так считало еще несколько детей, с которым она подружилась. Но так или иначе в таком положении это достаточно трудно. Бывало у нее забирали еду, подставляли во время учебы и приходилось выкручиваться, но ее дух от того не падал.
                                 </p>
-                                <p>
-                                    Минимум раз в год она видела, как кто-то из ее хорошо знакомых находил свой новый дом. Были те, кто забирал ребенка в свою семью, словно родного. И ей несомненно хотелось иметь семью. Она смотрела на это с тоской. Почему девочку не забирали? Она не знала этого. Она считает, что ей просто не везло. Чуть позже она приспособилась к этой мысли и перестала надеяться, что кто-то заберет ее, ей захотелось быть самодостаточной.
+                                <p data-editable="true">
+                                    Минимум раз в год она видела как кого-то из ее хорошо знакомых находил свой новый дом. Были те, кто забирал ребенка в свою семью, словно родного. И ей несомненно хотелось иметь семью. Она смотрела на это с тоской. Почему девочку не забирали? Она не знала этого. Она считает, что ей просто не везло. Чуть позже она приспособилась к этой мысли и перестала надеяться, что кто-то заберет ее, ей захотелось быть самодостаточной.
                                 </p>
-                                <p>
-                                    Робина она видела редко. Он был достаточно занятым, но так или иначе посещал дом, разговаривал с детьми, помимо денег на содержание приносил разного рода вкусности, и каждый ребенок был рад его приходу. Келли не была исключением. Она не считала никого здесь своей семьей, но глубоко уважала Господина Краузе, ведь именно он, считай, подарил ей жизнь. Что было бы с ребенком, если бы ее уложили на улице? Какова вероятность, что кто-то не прошел бы мимо?
+                                <p data-editable="true">
+                                    Робина она видела редко. Он был достаточно занятым, но так или иначе посещал дом, разговаривал с детьми, помимо денег на содержание приносил разного рода вкусности и каждый ребенок был рад его приходу. Келли не была исключением. Она не считала никого здесь своей семьей, но глубоко уважала Господина Краузе, ведь именно он считай подарил ей жизнь. Что было бы с ребенком, если бы ее уложили на улице? Какова вероятность, что кто-то не прошел бы мимо?
                                 </p>
-                                <p>
+                                <p data-editable="true">
                                     Свою настоящую семью она не знала. Она не знала абсолютно ничего о тех, чья кровь текла в ее жилах. И глубоко в душе таила обиду на этих людей, ведь никогда не могла понять это предательство.
                                 </p>
-                                <p>
-                                    Ни для кого не было секретом: девчонка была с детства достаточно активной. Она любила экстрим, любила тревожность, активность и прочее. Ей нравилось делать что-то запрещенное. В доме она часто нарушала установленные правила просто для того, чтобы чувствовать адреналин: сбегала из дома на волю, чтобы прогуляться по улице, воровала сахар у гувернанток, допускала разные игривые шалости. Энергии у нее было много, и она активно находила способы ее тратить.
+                                <p data-editable="true">
+                                    Не для кого не было секретом. Девчонка была с детства достаточно активной. Она любила экстрим, любила тревожность, активность и прочее. Ей нравилось делать что-то запрещенное. В доме она часто нарушала установленные правила, просто для того, чтобы чувствовать адреналин: сбегала с дома на волю, чтобы прогуляться по улице, воровала сахар у гувернанток, допускала разные игривые шалости. Энергии у нее было много и она активно находила способы ее тратить.
                                 </p>
                             </div>
                         </div>
 
-                        <div class="lg:col-span-4 space-y-3">
-                            <div onclick="handleImageClick('slot', 'chap2')" class="overflow-hidden rounded-xl border border-scout-border aspect-square bg-scout-bg cursor-pointer relative editable-slot group">
+                        <!-- Иллюстрация Главы 2 -->
+                        <div class="lg:col-span-4 space-y-4">
+                            <div class="relative group rounded-2xl overflow-hidden bg-obsidian border border-borderline aspect-[4/5]">
                                 <img 
-                                    id="chap2Img"
+                                    id="slot-chap2"
                                     src="Gemini_Generated_Image_meom0jmeom0jmeom.jpg" 
-                                    alt="Келли Кёрн — взгляд" 
-                                    onerror="this.src='https://placehold.co/600x600/131618/a88458?text=Глава+2'"
-                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                    alt="Келли Кёрн — Глава 2" 
+                                    onclick="handleImageInteraction('slot', 'chap2')"
+                                    onerror="this.src='https://placehold.co/600x750/111315/c8b28e?text=Chapter+II'"
+                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 cursor-pointer"
                                 >
-                                <div class="edit-overlay absolute inset-0 bg-black/70 backdrop-blur-xs flex-col items-center justify-center gap-2 p-4 text-center">
-                                    <span class="px-3 py-1.5 rounded-xl bg-scout-tan text-scout-bg font-semibold text-xs">Заменить фото Главы 2</span>
+                                <div onclick="openPhotoModal('slot', 'chap2')" class="img-edit-overlay absolute inset-0 bg-obsidian/75 backdrop-blur-xs flex-col items-center justify-center gap-2 p-4 text-center cursor-pointer">
+                                    <span class="px-3.5 py-1.5 rounded-full bg-corps-brass text-obsidian font-mono text-xs font-bold uppercase">Заменить фото Главы 2</span>
                                 </div>
                             </div>
-                            <p class="text-xs text-scout-muted italic text-center">
+                            <p class="font-serif italic text-sm text-corps-muted text-center px-2" data-editable="true">
                                 «Чуть позже она приспособилась к этой мысли и перестала надеяться, что кто-то заберет ее, ей захотелось быть самодостаточной».
                             </p>
                         </div>
                     </div>
                 </article>
 
-                <!-- Глава 3 -->
-                <article id="chapter3" class="chapter-card hidden fade-in p-6 sm:p-10 rounded-2xl bg-scout-card border border-scout-border shadow-lg">
-                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                        <div class="lg:col-span-8 space-y-4">
-                            <div class="flex items-center gap-3">
-                                <span class="text-xs font-semibold uppercase tracking-widest px-3 py-1 rounded-md bg-scout-tan/15 text-scout-tan">Глава III</span>
-                                <span class="text-xs text-scout-muted">Путь в Разведкорпус</span>
+                <!-- ГЛАВА 3 -->
+                <article id="bioChapter3" class="hidden fade-in rounded-3xl bg-charcoal/70 border border-borderline p-6 sm:p-12 shadow-2xl">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+                        <div class="lg:col-span-8 space-y-6">
+                            <div class="flex items-center gap-4 border-b border-borderline pb-4">
+                                <span class="font-mono text-xs uppercase tracking-[0.25em] text-corps-brass">ЧАСТЬ ТРЕТЬЯ</span>
+                                <span class="text-white/20">•</span>
+                                <span class="font-mono text-xs text-corps-muted" data-editable="true">КАДЕТСКИЙ КОРПУС И КРЫЛЬЯ СВОБОДЫ</span>
                             </div>
-                            <h3 class="serif-title text-2xl sm:text-3xl font-bold text-scout-text">Глава 3. Борьба за жизнь после</h3>
-                            <div class="space-y-4 text-sm sm:text-base leading-relaxed text-scout-text/85 font-normal">
-                                <p>
-                                    В дом иногда приходили солдаты. Чаще это была военная полиция. Они приходили и проверяли, чтобы все было в рамках закона, и смотрели на то, как растут дети, исходя из интереса. Хотя в дом приходили и другие подразделения. Они проходили как гости, рассказывали детям о военных байках и солдатской жизни. Военная служба просто показалась Келли с детства интересной.
+                            <h3 class="font-serif text-3xl sm:text-4xl font-normal text-white" data-editable="true">Глава 3. Борьба за жизнь после</h3>
+                            
+                            <div class="space-y-5 text-sm sm:text-base leading-[1.85] text-corps-parchment/85 font-light">
+                                <p data-editable="true">
+                                    В дом иногда приходили солдаты. Чаще это была военная полиция. Они приходили и проверяли, чтобы все было в рамках закона и смотрели на то, как растут дети исходя из интереса. Хотя в дом приходили и другие подразделения. Они проходили как гости, рассказывали детям о военный байках и солдатской жизни. Военная служба просто показалась Келли с детства интересной.
                                 </p>
-                                <p>
-                                    И уже к 13-ти годам она твердо решила, что нашла способ освободиться от объятий этого места — армия. Она рассказала об этом гувернантке, которая передала ее слова Господину Краузе. Тот не стал возражать. Он посчитал, что желание девочки должно быть исполнено, ведь он сумел дать ей, как и любому другому ребенку его дома, все необходимое.
+                                <p data-editable="true">
+                                    И уже к 13-ти годам она твердо решила, что нашла способ освободиться от объятий этого места - армия. Она рассказала об этом гувернантке, которые передали ее слова Господину Краузе. Тот не стал возражать. Он посчитал, что желание девочки должно быть исполнено, ведь он сумел дать ей, как и любому другому ребенку его дома все необходимое.
                                 </p>
-                                <p>
-                                    Таким образом она поступила в кадетское училище. Оно имело для нее мало отличий, кроме военного лексикона. Ее характер постепенно формировался на основе взаимоотношений с окружающими ее людьми, и в конечном итоге она закончила кадетку. В десятку лучших кадетов она не попала, хотя и не особо стремилась туда, потому к военной полиции попасть она так или иначе не смогла бы. Гарнизон казался ей слишком скучным. А вот Разведкорпус… Она считала, что там будет достаточно адреналина, который она сможет совмещать с полезным обществу делом.
+                                <p data-editable="true">
+                                    Таким образом она поступила в кадетское училище. Оно имело для нее мало отличий, кроме военного лексикона. Ее характер постепенно формировался, на основе взаимоотношений с окружающими ее людьми и в конечном итоге она закончила кадетку. В десятку лучших кадетов она не попала, хотя и не особо стремилась туда, потому к военной полиции попасть она так или иначе не смогла бы. Гарнизон казался ей слишком скучным. А вот разведкорпус… Она считала, что там будет достаточно адреналина, который она сможет совмещать с полезным обществу делом.
                                 </p>
                             </div>
                         </div>
 
-                        <div class="lg:col-span-4 space-y-3">
-                            <div onclick="handleImageClick('slot', 'chap3')" class="overflow-hidden rounded-xl border border-scout-border aspect-[4/5] bg-scout-bg cursor-pointer relative editable-slot group">
+                        <!-- Иллюстрация Главы 3 -->
+                        <div class="lg:col-span-4 space-y-4">
+                            <div class="relative group rounded-2xl overflow-hidden bg-obsidian border border-borderline aspect-[4/5]">
                                 <img 
-                                    id="chap3Img"
+                                    id="slot-chap3"
                                     src="Gemini_Generated_Image_ezbb3ezbb3ezbb3e.jpg" 
-                                    alt="Келли Кёрн верхом на лошади" 
-                                    onerror="this.src='https://placehold.co/600x750/131618/a88458?text=Глава+3'"
-                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                    alt="Келли Кёрн — Глава 3" 
+                                    onclick="handleImageInteraction('slot', 'chap3')"
+                                    onerror="this.src='https://placehold.co/600x750/111315/c8b28e?text=Chapter+III'"
+                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 cursor-pointer"
                                 >
-                                <div class="edit-overlay absolute inset-0 bg-black/70 backdrop-blur-xs flex-col items-center justify-center gap-2 p-4 text-center">
-                                    <span class="px-3 py-1.5 rounded-xl bg-scout-tan text-scout-bg font-semibold text-xs">Заменить фото Главы 3</span>
+                                <div onclick="openPhotoModal('slot', 'chap3')" class="img-edit-overlay absolute inset-0 bg-obsidian/75 backdrop-blur-xs flex-col items-center justify-center gap-2 p-4 text-center cursor-pointer">
+                                    <span class="px-3.5 py-1.5 rounded-full bg-corps-brass text-obsidian font-mono text-xs font-bold uppercase">Заменить фото Главы 3</span>
                                 </div>
                             </div>
-                            <p class="text-xs text-scout-muted italic text-center">
-                                «А вот Разведкорпус… Она считала, что там будет достаточно адреналина, который она сможет совмещать с полезным обществу делом».
+                            <p class="font-serif italic text-sm text-corps-muted text-center px-2" data-editable="true">
+                                «А вот разведкорпус… Она считала, что там будет достаточно адреналина, который она сможет совмещать с полезным обществу делом».
                             </p>
                         </div>
                     </div>
@@ -545,267 +611,198 @@
             </div>
         </section>
 
-        <!-- РАЗДЕЛ 4: ФОТОГАЛЕРЕЯ -->
-        <section id="gallery" class="space-y-8 pt-6 border-t border-scout-border">
+        <!-- СЕКЦИЯ 3: ВИЗУАЛЬНАЯ ФОТОХРОНИКА (ГАЛЕРЕЯ) -->
+        <section id="gallery" class="space-y-10 pt-12 border-t border-borderline">
             <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                 <div>
-                    <span class="text-xs uppercase tracking-[0.2em] text-scout-muted block mb-1">Визуальный архив</span>
-                    <h2 class="serif-title text-3xl sm:text-4xl font-semibold text-scout-text">Фотографии Келли Кёрн</h2>
+                    <span class="font-mono text-[11px] uppercase tracking-[0.25em] text-corps-brass block mb-2">ВИЗУАЛЬНЫЕ МАТЕРИАЛЫ // ЭКСПЕДИЦИОННЫЙ АРХИВ</span>
+                    <h2 class="font-serif text-4xl sm:text-5xl font-normal text-white" data-editable="true">Фотохроника Келли Кёрн</h2>
                 </div>
-                <!-- Кнопка добавления фото видна ТОЛЬКО владелице сайта -->
-                <div class="owner-only items-center gap-3">
-                    <button onclick="openPhotoModal('add')" class="px-4 py-2 rounded-xl bg-scout-green hover:bg-scout-greenHover border border-scout-tan/40 text-xs font-medium text-white flex items-center gap-2 transition-colors">
-                        <svg class="w-4 h-4 text-scout-tan" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                        <span>Вставить свою фотографию</span>
+                <div class="editor-only">
+                    <button onclick="openPhotoModal('add')" class="px-5 py-2.5 rounded-xl bg-corps-green hover:bg-corps-emerald border border-corps-brass/40 text-xs font-mono uppercase tracking-wider text-white flex items-center gap-2 transition-all">
+                        <svg class="w-4 h-4 text-corps-brass" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        <span>Добавить снимок</span>
                     </button>
                 </div>
             </div>
 
             <!-- Сетка галереи -->
-            <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Генерируется через JS -->
+            <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7">
+                <!-- Генерируется динамически через JS -->
             </div>
         </section>
 
     </main>
 
-    <!-- Подвал -->
-    <footer class="border-t border-scout-border mt-16 py-10 bg-[#090a0b]">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-scout-muted">
-            <div class="flex items-center gap-2">
-                <span class="font-medium text-scout-text">Келли Кёрн (Kelly Kern)</span>
-                <span>•</span>
-                <span>Оригинальный персонаж</span>
-            </div>
+    <!-- МИНИМАЛИСТИЧНЫЙ ПОДВАЛ -->
+    <footer class="border-t border-borderline mt-24 py-12 bg-obsidian/90">
+        <div class="max-w-7xl mx-auto px-4 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs text-corps-muted">
             <div class="flex items-center gap-3">
-                <span>ARCHIVE // KELLY KERN // 850</span>
-                <!-- Незаметный значок замка для входа владелицы -->
-                <button onclick="openOwnerAuthModal()" class="opacity-20 hover:opacity-80 transition-opacity text-scout-muted hover:text-scout-tan p-1" title="Вход для автора">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                    </svg>
-                </button>
+                <span class="text-corps-parchment font-medium" data-editable="true">KELLY KERN</span>
+                <span>//</span>
+                <span data-editable="true">SURVEY CORPS DOSSIER</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <span class="text-[11px] tracking-widest uppercase">WALL ROSE • TROST DISTRICT</span>
             </div>
         </div>
     </footer>
 
-    <!-- МОДАЛЬНОЕ ОКНО: СЕКРЕТНЫЙ ВХОД ДЛЯ АВТОРА -->
-    <div id="ownerAuthModal" class="fixed inset-0 z-50 hidden bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-scout-card border border-scout-border rounded-2xl max-w-md w-full p-6 sm:p-7 space-y-5 shadow-2xl">
-            <div class="flex items-center justify-between border-b border-scout-border pb-4">
+    <!-- МОДАЛЬНОЕ ОКНО ВВОДА ПАРОЛЯ (ОТКРЫВАЕТСЯ ПО SHIFT + E) -->
+    <div id="passwordModal" class="fixed inset-0 z-50 hidden bg-obsidian/90 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-charcoal border border-corps-brass/30 rounded-2xl max-w-md w-full p-7 space-y-6 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-borderline pb-4">
                 <div>
-                    <span class="text-[11px] uppercase tracking-widest text-scout-tan block">Закрытый доступ</span>
-                    <h3 class="serif-title text-2xl font-semibold text-scout-text">Вход для автора сайта</h3>
+                    <span class="font-mono text-[10px] uppercase tracking-[0.25em] text-corps-brass block">ЗАКРЫТЫЙ ПРОТОКОЛ</span>
+                    <h3 class="font-serif text-2xl font-normal text-white mt-0.5">Доступ к редактору архива</h3>
                 </div>
-                <button onclick="closeOwnerAuthModal()" class="p-2 rounded-lg text-scout-muted hover:text-scout-text">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                <button onclick="closePasswordModal()" class="p-1.5 rounded-lg text-corps-muted hover:text-white transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
 
-            <form onsubmit="submitOwnerPassword(event)" class="space-y-4">
-                <p class="text-xs text-scout-muted leading-relaxed">
-                    Введите ваш секретный пароль, чтобы открыть функции замены и добавления фотографий.
+            <form onsubmit="verifyEditorPassword(event)" class="space-y-4">
+                <p class="text-xs text-corps-muted leading-relaxed">
+                    Введите код доступа владельца для разблокировки редактирования текста и фотографий.
                 </p>
-                <div class="space-y-1.5">
-                    <label for="ownerPassInput" class="block text-xs uppercase tracking-wider text-scout-tan font-semibold">Пароль владельца</label>
+                <div class="space-y-2">
+                    <label for="editorPassInput" class="block font-mono text-[10px] uppercase tracking-[0.2em] text-corps-brass">КОД ДОСТУПА</label>
                     <input 
                         type="password" 
-                        id="ownerPassInput" 
-                        placeholder="Введите пароль..." 
+                        id="editorPassInput" 
+                        placeholder="••••••••" 
                         autocomplete="off"
-                        class="w-full px-4 py-2.5 rounded-xl bg-scout-bg border border-scout-border text-scout-text text-sm focus:outline-none focus:border-scout-tan"
+                        class="w-full px-4 py-3 rounded-xl bg-obsidian border border-borderline text-white font-mono text-sm tracking-widest focus:outline-none focus:border-corps-brass transition-colors"
                     >
-                    <p id="ownerAuthError" class="hidden text-xs text-rose-400 pt-1">Неверный пароль. Попробуйте снова.</p>
+                    <p id="passwordError" class="hidden font-mono text-[11px] text-rose-400 pt-1">
+                        Отказано в доступе. Неверный пароль.
+                    </p>
                 </div>
-                <div class="flex items-center justify-end gap-2 pt-2">
-                    <button type="button" onclick="closeOwnerAuthModal()" class="px-4 py-2 rounded-xl border border-scout-border text-xs text-scout-muted hover:text-scout-text">
+
+                <div class="flex items-center justify-end gap-3 pt-2">
+                    <button type="button" onclick="closePasswordModal()" class="px-4 py-2 rounded-xl border border-borderline text-xs font-mono text-corps-muted hover:text-white transition-colors">
                         Отмена
                     </button>
-                    <button type="submit" class="px-5 py-2 rounded-xl bg-scout-tan text-scout-bg font-semibold text-xs hover:opacity-90 transition-opacity">
-                        Разблокировать
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-corps-brass text-obsidian font-mono font-semibold text-xs uppercase tracking-wider hover:opacity-90 transition-opacity">
+                        Войти
                     </button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- МОДАЛЬНОЕ ОКНО: ЗАГРУЗКА / ВСТАВКА ФОТОГРАФИИ (ТОЛЬКО ДЛЯ АВТОРА) -->
-    <div id="photoModal" class="fixed inset-0 z-50 hidden bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-scout-card border border-scout-border rounded-2xl max-w-lg w-full p-6 sm:p-7 space-y-5 shadow-2xl my-8">
-            <div class="flex items-center justify-between border-b border-scout-border pb-4">
+    <!-- МОДАЛЬНОЕ ОКНО ЗАМЕНЫ / ДОБАВЛЕНИЯ ФОТОГРАФИЙ -->
+    <div id="photoModal" class="fixed inset-0 z-50 hidden bg-obsidian/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-charcoal border border-corps-brass/30 rounded-2xl max-w-xl w-full p-6 sm:p-8 space-y-6 shadow-2xl my-8">
+            <div class="flex items-center justify-between border-b border-borderline pb-4">
                 <div>
-                    <span class="text-[11px] uppercase tracking-widest text-scout-tan block">Фотоархив Келли Кёрн</span>
-                    <h3 id="photoModalTitle" class="serif-title text-2xl font-semibold text-scout-text">Вставить фотографию</h3>
+                    <span class="font-mono text-[10px] uppercase tracking-[0.25em] text-corps-brass block">УПРАВЛЕНИЕ МЕДИАФАЙЛАМИ</span>
+                    <h3 id="photoModalTitle" class="font-serif text-2xl font-normal text-white mt-0.5">Заменить фотографию</h3>
                 </div>
-                <button onclick="closePhotoModal()" class="p-2 rounded-lg text-scout-muted hover:text-scout-text">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                <button onclick="closePhotoModal()" class="p-1.5 rounded-lg text-corps-muted hover:text-white">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
 
-            <!-- Способ 1: Загрузка файла с устройства -->
+            <!-- Вариант 1: Загрузка файла с устройства -->
             <div class="space-y-2">
-                <label class="block text-xs uppercase tracking-wider text-scout-tan font-semibold">
-                    Способ 1: Выбрать файл с компьютера или телефона
+                <label class="block font-mono text-[11px] uppercase tracking-wider text-corps-brass">
+                    1. Загрузить фото с компьютера или телефона
                 </label>
-                <p class="text-xs text-scout-muted leading-relaxed">
-                    Фотография автоматически оптимизируется и встроится прямо внутрь кода страницы. После нажатия «Скачать index.html» она сразу будет работать на GitHub.
-                </p>
-                <label class="mt-2 flex flex-col items-center justify-center border-2 border-dashed border-scout-border hover:border-scout-tan/60 rounded-xl p-5 cursor-pointer bg-scout-bg/60 transition-colors">
-                    <svg class="w-7 h-7 text-scout-tan mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <label class="flex flex-col items-center justify-center border border-dashed border-corps-brass/40 hover:border-corps-brass rounded-xl p-5 cursor-pointer bg-obsidian/60 transition-colors">
+                    <svg class="w-6 h-6 text-corps-brass mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
                     </svg>
-                    <span class="text-xs font-medium text-scout-text">Нажмите, чтобы выбрать изображение (JPG, PNG, WEBP)</span>
-                    <input type="file" id="photoFileInput" accept="image/*" class="hidden" onchange="handleFileSelect(event)">
+                    <span class="text-xs text-corps-parchment font-medium">Выберите файл (автоматически встроится в код страницы)</span>
+                    <input type="file" id="photoFileInput" accept="image/*" class="hidden" onchange="handleFileUpload(event)">
                 </label>
             </div>
 
-            <div class="relative flex py-1 items-center">
-                <div class="flex-grow border-t border-scout-border"></div>
-                <span class="flex-shrink mx-3 text-[11px] uppercase tracking-widest text-scout-muted">или</span>
-                <div class="flex-grow border-t border-scout-border"></div>
-            </div>
-
-            <!-- Способ 2: Прямая ссылка или путь к файлу в репозитории GitHub -->
-            <div class="space-y-2">
-                <label for="photoUrlInput" class="block text-xs uppercase tracking-wider text-scout-tan font-semibold">
-                    Способ 2: Имя файла в GitHub-репозитории или URL-ссылка
+            <!-- Вариант 2: Быстрый выбор из файлов вашего репозитория GitHub или ввод ссылки -->
+            <div class="space-y-3">
+                <label for="photoPathInput" class="block font-mono text-[11px] uppercase tracking-wider text-corps-brass">
+                    2. Или укажите имя файла в вашем GitHub репозитории / URL
                 </label>
-                <p class="text-xs text-scout-muted leading-relaxed">
-                    Если вы загрузите картинку в папку репозитория на GitHub рядом с <code class="text-scout-text">index.html</code>, просто напишите её имя (например: <code class="text-scout-text">my-photo.jpg</code> или <code class="text-scout-text">images/kelly1.png</code>).
-                </p>
                 <input 
                     type="text" 
-                    id="photoUrlInput" 
-                    placeholder="Например: my-photo.jpg или https://..." 
-                    oninput="handleUrlInput(this.value)"
-                    class="w-full px-4 py-2.5 rounded-xl bg-scout-bg border border-scout-border text-scout-text text-sm focus:outline-none focus:border-scout-tan"
+                    id="photoPathInput" 
+                    placeholder="Например: Наталья Добровольская (3).jpg или https://..." 
+                    oninput="previewTypedUrl(this.value)"
+                    class="w-full px-4 py-2.5 rounded-xl bg-obsidian border border-borderline text-white text-xs font-mono focus:outline-none focus:border-corps-brass"
                 >
+
+                <!-- Быстрые кнопки файлов, которые уже есть в репозитории пользователя -->
+                <div class="space-y-1.5">
+                    <span class="font-mono text-[10px] uppercase tracking-wider text-corps-muted block">Файлы в вашем репозитории (кликните для выбора):</span>
+                    <div class="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto p-2 rounded-xl bg-obsidian/70 border border-borderline">
+                        <button type="button" onclick="selectRepoFile('Gemini_Generated_Image_uzp9lguzp9lguzp9.jpg')" class="px-2.5 py-1 rounded bg-charcoal hover:bg-corps-green/40 border border-borderline text-[11px] font-mono text-corps-parchment transition-colors">uzp9lg...jpg</button>
+                        <button type="button" onclick="selectRepoFile('Gemini_Generated_Image_439mx439mx439mx4.jpg')" class="px-2.5 py-1 rounded bg-charcoal hover:bg-corps-green/40 border border-borderline text-[11px] font-mono text-corps-parchment transition-colors">439mx4...jpg</button>
+                        <button type="button" onclick="selectRepoFile('Gemini_Generated_Image_ezbb3ezbb3ezbb3e.jpg')" class="px-2.5 py-1 rounded bg-charcoal hover:bg-corps-green/40 border border-borderline text-[11px] font-mono text-corps-parchment transition-colors">ezbb3e...jpg</button>
+                        <button type="button" onclick="selectRepoFile('Gemini_Generated_Image_h97vtuh97vtuh97v.jpg')" class="px-2.5 py-1 rounded bg-charcoal hover:bg-corps-green/40 border border-borderline text-[11px] font-mono text-corps-parchment transition-colors">h97vtu...jpg</button>
+                        <button type="button" onclick="selectRepoFile('Gemini_Generated_Image_iiqmiiqmiiqmiiqm копия.jpg')" class="px-2.5 py-1 rounded bg-charcoal hover:bg-corps-green/40 border border-borderline text-[11px] font-mono text-corps-parchment transition-colors">iiqmii...jpg</button>
+                        <button type="button" onclick="selectRepoFile('Gemini_Generated_Image_meom0jmeom0jmeom.jpg')" class="px-2.5 py-1 rounded bg-charcoal hover:bg-corps-green/40 border border-borderline text-[11px] font-mono text-corps-parchment transition-colors">meom0j...jpg</button>
+                        <button type="button" onclick="selectRepoFile('Наталья Добровольская (3).jpg')" class="px-2.5 py-1 rounded bg-charcoal hover:bg-corps-green/40 border border-borderline text-[11px] font-mono text-corps-brass transition-colors">Наталья Добровольская (3).jpg</button>
+                        <button type="button" onclick="selectRepoFile('Наталья Добровольская (4).jpg')" class="px-2.5 py-1 rounded bg-charcoal hover:bg-corps-green/40 border border-borderline text-[11px] font-mono text-corps-brass transition-colors">Наталья Добровольская (4).jpg</button>
+                        <button type="button" onclick="selectRepoFile('Наталья Добровольская (5).jpg')" class="px-2.5 py-1 rounded bg-charcoal hover:bg-corps-green/40 border border-borderline text-[11px] font-mono text-corps-brass transition-colors">Наталья Добровольская (5).jpg</button>
+                        <button type="button" onclick="selectRepoFile('Наталья Добровольская (6).jpg')" class="px-2.5 py-1 rounded bg-charcoal hover:bg-corps-green/40 border border-borderline text-[11px] font-mono text-corps-brass transition-colors">Наталья Добровольская (6).jpg</button>
+                        <button type="button" onclick="selectRepoFile('Наталья Добровольская (7).jpg')" class="px-2.5 py-1 rounded bg-charcoal hover:bg-corps-green/40 border border-borderline text-[11px] font-mono text-corps-brass transition-colors">Наталья Добровольская (7).jpg</button>
+                    </div>
+                </div>
             </div>
 
-            <!-- Подпись к фото -->
-            <div id="photoCaptionGroup" class="space-y-1.5">
-                <label for="photoCaptionInput" class="block text-xs uppercase tracking-wider text-scout-muted">Подпись к снимку</label>
+            <!-- Подпись к снимку (для галереи) -->
+            <div id="photoCaptionWrap" class="space-y-1.5">
+                <label for="photoCaptionInput" class="block font-mono text-[11px] uppercase tracking-wider text-corps-muted">Подпись к фотографии</label>
                 <input 
                     type="text" 
                     id="photoCaptionInput" 
                     placeholder="Например: Перед выходом за Стены" 
-                    class="w-full px-4 py-2.5 rounded-xl bg-scout-bg border border-scout-border text-scout-text text-sm focus:outline-none focus:border-scout-tan"
+                    class="w-full px-4 py-2.5 rounded-xl bg-obsidian border border-borderline text-white text-sm focus:outline-none focus:border-corps-brass"
                 >
             </div>
 
             <!-- Предпросмотр -->
-            <div id="photoPreviewWrapper" class="hidden space-y-1.5">
-                <span class="text-[11px] uppercase tracking-wider text-scout-muted block">Предпросмотр:</span>
-                <div class="h-44 rounded-xl overflow-hidden bg-scout-bg border border-scout-border flex items-center justify-center">
-                    <img id="photoPreviewImg" src="" alt="Предпросмотр" class="max-h-full max-w-full object-contain">
+            <div id="photoPreviewBox" class="hidden space-y-1.5">
+                <span class="font-mono text-[10px] uppercase tracking-wider text-corps-muted block">Предпросмотр:</span>
+                <div class="h-44 rounded-xl overflow-hidden bg-obsidian border border-borderline flex items-center justify-center">
+                    <img id="photoPreviewImg" src="" alt="Preview" class="max-h-full max-w-full object-contain">
                 </div>
             </div>
 
-            <div class="flex items-center justify-end gap-3 pt-2 border-t border-scout-border">
-                <button onclick="closePhotoModal()" class="px-4 py-2 rounded-xl border border-scout-border text-xs text-scout-muted hover:text-scout-text">
+            <div class="flex items-center justify-end gap-3 pt-3 border-t border-borderline">
+                <button type="button" onclick="closePhotoModal()" class="px-4 py-2 rounded-xl border border-borderline text-xs font-mono text-corps-muted hover:text-white">
                     Отмена
                 </button>
-                <button onclick="savePhotoFromModal()" class="px-5 py-2 rounded-xl bg-scout-tan text-scout-bg font-semibold text-xs hover:opacity-90 transition-opacity">
-                    Сохранить фото
+                <button type="button" onclick="applyPhotoChange()" class="px-6 py-2.5 rounded-xl bg-corps-brass text-obsidian font-mono font-bold text-xs uppercase tracking-wider hover:opacity-90 transition-opacity">
+                    Применить
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- МОДАЛЬНОЕ ОКНО: НАСТРОЙКИ АВТОРА, СМЕНА ПАРОЛЯ И ЭКСПОРТ ДЛЯ GITHUB -->
-    <div id="githubModal" class="fixed inset-0 z-50 hidden bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-scout-card border border-scout-border rounded-2xl max-w-xl w-full p-6 sm:p-8 space-y-6 shadow-2xl my-8">
-            <div class="flex items-center justify-between border-b border-scout-border pb-4">
-                <div>
-                    <span class="text-[11px] uppercase tracking-widest text-scout-tan block">Настройки владельца</span>
-                    <h3 class="serif-title text-2xl font-semibold text-scout-text">Секретный доступ и экспорт для GitHub</h3>
-                </div>
-                <button onclick="closeGithubModal()" class="p-2 rounded-lg text-scout-muted hover:text-scout-text">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
-
-            <div class="space-y-4 text-xs sm:text-sm text-scout-text/90 leading-relaxed">
-                <!-- Памятка как заходить в админку -->
-                <div class="p-4 rounded-xl bg-scout-bg border border-scout-tan/30 space-y-2">
-                    <span class="text-scout-tan font-semibold block">Как открыть редактор фото (знаете только вы):</span>
-                    <ul class="space-y-1.5 text-scout-muted list-disc list-inside text-xs">
-                        <li><strong>Способ 1:</strong> Быстро кликните <strong>3 раза подряд</strong> по круглой зеленой эмблеме Разведкорпуса в левом верхнем углу шапки.</li>
-                        <li><strong>Способ 2:</strong> Нажмите комбинацию клавиш <code class="text-scout-text">Shift + E</code> на клавиатуре.</li>
-                        <li><strong>Способ 3:</strong> Нажмите на крошечный полупрозрачный замочек в самом низу страницы (рядом с надписью <em>ARCHIVE // KELLY KERN // 850</em>) или добавьте <code class="text-scout-text">#admin</code> к адресу сайта.</li>
-                    </ul>
-                </div>
-
-                <!-- Смена пароля -->
-                <div class="p-4 rounded-xl bg-scout-bg border border-scout-border space-y-3">
-                    <div class="flex items-center justify-between">
-                        <span class="text-scout-text font-semibold text-xs uppercase tracking-wider">Ваш пароль для входа</span>
-                        <span class="text-[11px] text-scout-muted">По умолчанию: <code class="text-scout-tan">kelly</code> (или <code class="text-scout-tan">850</code>)</span>
-                    </div>
-                    <div class="flex flex-col sm:flex-row gap-2">
-                        <input 
-                            type="text" 
-                            id="newOwnerPassInput" 
-                            placeholder="Новый пароль..." 
-                            class="flex-1 px-3.5 py-2 rounded-xl bg-scout-card border border-scout-border text-scout-text text-xs focus:outline-none focus:border-scout-tan"
-                        >
-                        <button onclick="changeOwnerPassword()" class="px-4 py-2 rounded-xl bg-scout-green hover:bg-scout-greenHover text-white text-xs font-medium transition-colors shrink-0">
-                            Обновить пароль
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Инструкция по GitHub -->
-                <div class="p-4 rounded-xl bg-scout-bg border border-scout-border space-y-2 text-xs">
-                    <span class="text-scout-text font-semibold block">Публикация на GitHub Pages:</span>
-                    <p class="text-scout-muted">
-                        Когда вы нажимаете <strong>«Скачать чистый index.html»</strong>, все ваши новые фотографии и пароль сохраняются внутри файла, но сам сайт сохраняется в <strong>закрытом для гостей виде</strong> — никто из посетителей не увидит кнопок управления.
-                    </p>
-                </div>
-            </div>
-
-            <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-scout-border">
-                <button onclick="exportStandaloneHTML()" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-scout-tan text-scout-bg font-semibold text-xs hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                    <span>Скачать чистый index.html для GitHub</span>
-                </button>
-                <button onclick="closeGithubModal()" class="w-full sm:w-auto px-4 py-2 rounded-xl border border-scout-border text-xs text-scout-muted hover:text-scout-text">
-                    Закрыть
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- МОДАЛЬНОЕ ОКНО ЛАЙТБОКСА ДЛЯ ПРОСМОТРА ФОТОГРАФИЙ -->
-    <div id="lightbox" class="fixed inset-0 z-50 hidden bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
-        <button onclick="closeLightbox()" class="absolute top-5 right-5 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors" aria-label="Закрыть">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
+    <!-- ПОЛНОЭКРАННЫЙ ПРОСМОТР ФОТОГРАФИЙ (LIGHTBOX) -->
+    <div id="lightbox" class="fixed inset-0 z-50 hidden bg-obsidian/95 backdrop-blur-xl flex items-center justify-center p-4">
+        <button onclick="closeLightbox()" class="absolute top-6 right-6 w-11 h-11 rounded-full bg-charcoal border border-borderline text-corps-parchment hover:border-corps-brass flex items-center justify-center transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
 
-        <button onclick="changeSlide(-1)" class="absolute left-4 sm:left-8 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors" aria-label="Предыдущее фото">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-            </svg>
+        <button onclick="stepLightbox(-1)" class="absolute left-4 sm:left-8 w-11 h-11 rounded-full bg-charcoal border border-borderline text-corps-parchment hover:border-corps-brass flex items-center justify-center transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 19l-7-7 7-7"/></svg>
         </button>
 
-        <div class="max-w-4xl max-h-[85vh] flex flex-col items-center gap-3">
-            <img id="lightboxImg" src="" alt="Келли Кёрн" class="max-h-[75vh] w-auto object-contain rounded-xl border border-white/15 shadow-2xl">
-            <p id="lightboxCaption" class="text-sm text-white/80 font-light tracking-wide"></p>
+        <div class="max-w-5xl max-h-[88vh] flex flex-col items-center gap-4">
+            <img id="lightboxImg" src="" alt="Келли Кёрн" class="max-h-[78vh] w-auto object-contain rounded-xl border border-borderline shadow-2xl">
+            <p id="lightboxCaption" class="font-serif italic text-lg text-corps-parchment/90 tracking-wide"></p>
         </div>
 
-        <button onclick="changeSlide(1)" class="absolute right-4 sm:right-8 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors" aria-label="Следующее фото">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-            </svg>
+        <button onclick="stepLightbox(1)" class="absolute right-4 sm:right-8 w-11 h-11 rounded-full bg-charcoal border border-borderline text-corps-parchment hover:border-corps-brass flex items-center justify-center transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 5l7 7-7 7"/></svg>
         </button>
     </div>
 
-    <!-- ХРАНИЛИЩЕ ДАННЫХ ПО УМОЛЧАНИЮ (АВТОМАТИЧЕСКИ ОБНОВЛЯЕТСЯ ПРИ ЭКСПОРТЕ ДЛЯ GITHUB) -->
-    <script id="appDataScript">
-        const DEFAULT_STATE = {
-            ownerPin: "kelly",
+    <!-- ВСТРОЕННОЕ ХРАНИЛИЩЕ СОСТОЯНИЯ (АВТОМАТИЧЕСКИ ОБНОВЛЯЕТСЯ ПРИ ЭКСПОРТЕ ДЛЯ GITHUB) -->
+    <script id="dossierStateScript">
+        const INITIAL_MEDIA_STATE = {
             slots: {
                 hero: "Gemini_Generated_Image_uzp9lguzp9lguzp9.jpg",
                 chap1: "Gemini_Generated_Image_iiqmiiqmiiqmiiqm копия.jpg",
@@ -813,212 +810,158 @@
                 chap3: "Gemini_Generated_Image_ezbb3ezbb3ezbb3e.jpg"
             },
             gallery: [
-                { src: "Gemini_Generated_Image_uzp9lguzp9lguzp9.jpg", title: },
-                { src: "Gemini_Generated_Image_439mx439mx439mx4.jpg", title: },
-                { src: "Gemini_Generated_Image_ezbb3ezbb3ezbb3e.jpg", title: },
-                { src: "Gemini_Generated_Image_h97vtuh97vtuh97v.jpg", title: },
-                { src: "Gemini_Generated_Image_iiqmiiqmiiqmiiqm копия.jpg", title: },
-                { src: "Gemini_Generated_Image_meom0jmeom0jmeom.jpg", title: }
+                { src: "Gemini_Generated_Image_uzp9lguzp9lguzp9.jpg", title: "Полевой портрет под ветром" },
+                { src: "Gemini_Generated_Image_439mx439mx439mx4.jpg", title: "Искренняя улыбка в лесу" },
+                { src: "Gemini_Generated_Image_ezbb3ezbb3ezbb3e.jpg", title: "Верхом за Стенами на закате" },
+                { src: "Gemini_Generated_Image_h97vtuh97vtuh97v.jpg", title: "В архивной библиотеке штаба" },
+                { src: "Gemini_Generated_Image_iiqmiiqmiiqmiiqm копия.jpg", title: "Вечная ухмылка" },
+                { src: "Gemini_Generated_Image_meom0jmeom0jmeom.jpg", title: "Минута тишины перед вылазкой" }
             ]
         };
     </script>
 
+    <!-- ОСНОВНОЙ СКРИПТ ДОСЬЕ И РЕДАКТОРА -->
     <script>
-        const STORAGE_KEY = 'kelly_kern_dossier_photos_v1';
-        let appState = loadState();
-        let isOwnerUnlocked = false;
-        let isEditMode = false;
-        let currentSlide = 0;
+        const EDITOR_PASSPHRASE = "76717671";
+        const STORAGE_MEDIA_KEY = "kelly_kern_media_v2";
+        const STORAGE_TEXT_KEY = "kelly_kern_texts_v2";
 
-        // Счетчик тройного клика по эмблеме Разведкорпуса
-        let crestClickCount = 0;
-        let crestClickTimer = null;
+        let mediaState = loadMediaState();
+        let isEditorActive = false;
+        let activeLightboxIdx = 0;
 
-        // Контекст модального окна редактирования фото
-        let modalTargetType = null; // 'slot' | 'gallery' | 'add'
-        let modalTargetKey = null;  // 'hero' | 'chap1' | index
-        let tempImageData = '';
+        // Контекст модального окна фото
+        let photoModalMode = null; // 'slot' | 'gallery' | 'add'
+        let photoModalKey = null;
+        let pendingPhotoSrc = "";
 
-        function loadState() {
+        function loadMediaState() {
             try {
-                const raw = localStorage.getItem(STORAGE_KEY);
-                if (raw) {
-                    const parsed = JSON.parse(raw);
+                const saved = localStorage.getItem(STORAGE_MEDIA_KEY);
+                if (saved) {
+                    const parsed = JSON.parse(saved);
                     if (parsed && parsed.slots && Array.isArray(parsed.gallery)) {
-                        if (!parsed.ownerPin) parsed.ownerPin = DEFAULT_STATE.ownerPin || "kelly";
                         return parsed;
                     }
                 }
-            } catch (e) {
-                console.warn('Не удалось прочитать localStorage:', e);
+            } catch (err) {
+                console.warn("Не удалось загрузить локальное медиа-состояние:", err);
             }
-            return JSON.parse(JSON.stringify(DEFAULT_STATE));
+            return JSON.parse(JSON.stringify(INITIAL_MEDIA_STATE));
         }
 
-        function saveState() {
+        function saveMediaState() {
             try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
-            } catch (e) {
-                console.warn('Превышен лимит localStorage, но данные доступны для скачивания в index.html:', e);
+                localStorage.setItem(STORAGE_MEDIA_KEY, JSON.stringify(mediaState));
+            } catch (err) {
+                console.warn("Превышен лимит localStorage для фото, используйте кнопку Скачать index.html:", err);
             }
         }
 
-        function showToast(message) {
+        // Сохранение и восстановление всех текстовых полей
+        function assignEditableIds() {
+            const editables = document.querySelectorAll('[data-editable="true"]');
+            editables.forEach((el, idx) => {
+                if (!el.dataset.editId) {
+                    el.dataset.editId = 'txt_' + idx;
+                }
+            });
+        }
+
+        function loadSavedTexts() {
+            assignEditableIds();
+            try {
+                const raw = localStorage.getItem(STORAGE_TEXT_KEY);
+                if (!raw) return;
+                const map = JSON.parse(raw);
+                Object.keys(map).forEach(id => {
+                    const el = document.querySelector(`[data-edit-id="${id}"]`);
+                    if (el) el.innerHTML = map[id];
+                });
+            } catch (err) {
+                console.warn("Ошибка чтения сохраненных текстов:", err);
+            }
+        }
+
+        function saveCurrentTexts() {
+            assignEditableIds();
+            const map = {};
+            document.querySelectorAll('[data-editable="true"]').forEach(el => {
+                map[el.dataset.editId] = el.innerHTML;
+            });
+            try {
+                localStorage.setItem(STORAGE_TEXT_KEY, JSON.stringify(map));
+            } catch (err) {
+                console.warn("Ошибка сохранения текстов:", err);
+            }
+        }
+
+        function notify(msg) {
             const toast = document.getElementById('toast');
-            document.getElementById('toastMsg').textContent = message;
+            document.getElementById('toastMsg').textContent = msg;
             toast.classList.remove('hidden');
+            toast.classList.add('flex');
             clearTimeout(window._toastTimer);
             window._toastTimer = setTimeout(() => {
                 toast.classList.add('hidden');
+                toast.classList.remove('flex');
             }, 3200);
         }
 
-        // --- СИСТЕМА ЗАЩИТЫ И ВХОДА ТОЛЬКО ДЛЯ АВТОРА ---
-        function handleCrestClick() {
-            crestClickCount++;
-            clearTimeout(crestClickTimer);
-            if (crestClickCount >= 3) {
-                crestClickCount = 0;
-                openOwnerAuthModal();
-            } else {
-                crestClickTimer = setTimeout(() => {
-                    crestClickCount = 0;
-                }, 700);
-            }
-        }
+        // ОТРИСОВКА ВСЕХ ФОТОГРАФИЙ И ГАЛЕРЕИ
+        function renderMedia() {
+            document.getElementById('slot-hero').src = mediaState.slots.hero;
+            document.getElementById('slot-chap1').src = mediaState.slots.chap1;
+            document.getElementById('slot-chap2').src = mediaState.slots.chap2;
+            document.getElementById('slot-chap3').src = mediaState.slots.chap3;
 
-        function openOwnerAuthModal() {
-            if (isOwnerUnlocked) {
-                openGithubModal();
-                return;
-            }
-            document.getElementById('ownerPassInput').value = '';
-            document.getElementById('ownerAuthError').classList.add('hidden');
-            document.getElementById('ownerAuthModal').classList.remove('hidden');
-            setTimeout(() => {
-                document.getElementById('ownerPassInput').focus();
-            }, 50);
-        }
-
-        function closeOwnerAuthModal() {
-            document.getElementById('ownerAuthModal').classList.add('hidden');
-        }
-
-        function submitOwnerPassword(e) {
-            e.preventDefault();
-            const val = document.getElementById('ownerPassInput').value.trim();
-            const validPin = appState.ownerPin || 'kelly';
-
-            if (val === validPin || (val.toLowerCase() === 'kelly' && validPin === 'kelly') || val === '850') {
-                closeOwnerAuthModal();
-                unlockOwnerMode();
-            } else {
-                document.getElementById('ownerAuthError').classList.remove('hidden');
-            }
-        }
-
-        function unlockOwnerMode() {
-            isOwnerUnlocked = true;
-            isEditMode = true;
-            document.body.classList.add('admin-unlocked', 'edit-mode');
-            document.getElementById('visitorBadge').classList.add('hidden');
-            updateEditBtnUI();
-            renderAllImages();
-            showToast('Режим автора разблокирован. Теперь вы можете менять фото.');
-        }
-
-        function lockOwnerMode() {
-            isOwnerUnlocked = false;
-            isEditMode = false;
-            document.body.classList.remove('admin-unlocked', 'edit-mode');
-            document.getElementById('visitorBadge').classList.remove('hidden');
-            if (window.location.hash === '#admin') {
-                history.replaceState(null, null, ' ');
-            }
-            renderAllImages();
-            showToast('Вы вышли из режима автора. Сайт отображается глазами гостя.');
-        }
-
-        function changeOwnerPassword() {
-            const newPin = document.getElementById('newOwnerPassInput').value.trim();
-            if (!newPin) {
-                showToast('Введите новый пароль');
-                return;
-            }
-            appState.ownerPin = newPin;
-            saveState();
-            document.getElementById('newOwnerPassInput').value = '';
-            showToast('Пароль успешно изменен! Не забудьте скачать обновленный index.html.');
-        }
-
-        function updateEditBtnUI() {
-            const btnText = document.getElementById('editBtnText');
-            const btn = document.getElementById('toggleEditBtn');
-            if (isEditMode) {
-                btnText.textContent = 'Замена фото: ВКЛ';
-                btn.classList.add('border-scout-tan', 'bg-scout-green/40');
-            } else {
-                btnText.textContent = 'Замена фото: ВЫКЛ';
-                btn.classList.remove('border-scout-tan', 'bg-scout-green/40');
-            }
-        }
-
-        // Отрисовка всех фотографий на странице
-        function renderAllImages() {
-            document.getElementById('heroMainImg').src = appState.slots.hero;
-            document.getElementById('chap1Img').src = appState.slots.chap1;
-            document.getElementById('chap2Img').src = appState.slots.chap2;
-            document.getElementById('chap3Img').src = appState.slots.chap3;
-
-            const thumbContainer = document.getElementById('heroThumbnails');
-            thumbContainer.innerHTML = '';
-            appState.gallery.slice(0, 5).forEach((item, idx) => {
+            // Миниатюры под главным портретом
+            const thumbs = document.getElementById('heroThumbnails');
+            thumbs.innerHTML = '';
+            mediaState.gallery.slice(0, 6).forEach((item, idx) => {
                 const btn = document.createElement('button');
-                btn.className = "overflow-hidden rounded-xl border border-scout-border bg-scout-card aspect-square group focus:outline-none focus:ring-2 focus:ring-scout-tan relative";
-                btn.onclick = () => handleImageClick('gallery', idx);
-
-                const img = document.createElement('img');
-                img.src = item.src;
-                img.alt = item.title;
-                img.className = "w-full h-full object-cover group-hover:scale-110 transition-transform duration-300";
-                img.onerror = function() {
-                    this.src = 'https://placehold.co/300x300/131618/a88458?text=Фото';
-                };
-
-                btn.appendChild(img);
-                thumbContainer.appendChild(btn);
+                btn.className = "rounded-xl overflow-hidden border border-borderline bg-charcoal aspect-square group focus:outline-none focus:border-corps-brass relative";
+                btn.onclick = () => handleImageInteraction('gallery', idx);
+                btn.innerHTML = `
+                    <img src="${item.src}" alt="${item.title}" onerror="this.src='https://placehold.co/200x200/111315/c8b28e?text=${idx+1}'" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                `;
+                thumbs.appendChild(btn);
             });
 
+            // Основная сетка фотохроники
             const grid = document.getElementById('galleryGrid');
             grid.innerHTML = '';
-            appState.gallery.forEach((item, index) => {
-                const numStr = String(index + 1).padStart(2, '0');
+            mediaState.gallery.forEach((item, idx) => {
+                const num = String(idx + 1).padStart(2, '0');
                 const card = document.createElement('div');
-                card.className = "group relative rounded-2xl overflow-hidden bg-scout-card border border-scout-border shadow-md editable-slot flex flex-col justify-between";
+                card.className = "group rounded-2xl overflow-hidden bg-charcoal/80 border border-borderline shadow-xl flex flex-col justify-between transition-all hover:border-corps-brass/40";
 
-                const deleteBtnHtml = appState.gallery.length > 1
-                    ? `<button onclick="deleteGalleryPhoto(${index})" class="p-1.5 rounded-lg border border-scout-border text-scout-muted hover:text-rose-400 hover:border-rose-500/40 transition-colors" title="Удалить снимок">
+                const deleteButton = mediaState.gallery.length > 1
+                    ? `<button onclick="removeGalleryItem(${idx})" class="p-1.5 rounded-lg border border-borderline text-corps-muted hover:text-rose-400 hover:border-rose-500/40 transition-colors" title="Удалить снимок">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                        </button>`
                     : '';
 
                 card.innerHTML = `
-                    <div onclick="handleImageClick('gallery', ${index})" class="aspect-[4/5] overflow-hidden cursor-pointer relative bg-scout-bg">
-                        <img src="${item.src}" alt="${item.title}" onerror="this.src='https://placehold.co/600x750/131618/a88458?text=Фото+${numStr}'" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-                        <div class="edit-overlay absolute inset-0 bg-black/70 backdrop-blur-[2px] flex-col items-center justify-center gap-2 p-4 text-center">
-                            <span class="px-3.5 py-1.5 rounded-xl bg-scout-tan text-scout-bg font-semibold text-xs">Заменить фото</span>
+                    <div class="relative aspect-[4/5] overflow-hidden bg-obsidian cursor-pointer" onclick="handleImageInteraction('gallery', ${idx})">
+                        <img src="${item.src}" alt="${item.title}" onerror="this.src='https://placehold.co/600x750/111315/c8b28e?text=ARCHIVE+${num}'" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                        <div class="absolute top-3 left-3 px-2.5 py-1 rounded bg-obsidian/70 backdrop-blur-md border border-white/10 font-mono text-[10px] text-corps-brass">
+                            FILE // ${num}
+                        </div>
+                        <div class="img-edit-overlay absolute inset-0 bg-obsidian/75 backdrop-blur-xs flex-col items-center justify-center gap-2 p-4 text-center">
+                            <span class="px-3.5 py-1.5 rounded-full bg-corps-brass text-obsidian font-mono text-xs font-bold uppercase">Заменить снимок</span>
                         </div>
                     </div>
-                    <div class="p-4 flex items-center justify-between gap-2 border-t border-scout-border">
+                    <div class="p-4 flex items-center justify-between gap-3 border-t border-borderline">
                         <div class="truncate">
-                            <span class="text-[11px] text-scout-muted block">Снимок №${numStr}</span>
-                            <span class="text-sm font-medium text-scout-text truncate block">${item.title}</span>
+                            <span class="font-mono text-[10px] uppercase tracking-widest text-corps-muted block">КАДР №${num}</span>
+                            <p class="font-serif text-lg text-corps-parchment truncate">${item.title}</p>
                         </div>
-                        <div class="owner-only items-center gap-1.5 shrink-0">
-                            <button onclick="openPhotoModal('gallery', ${index})" class="p-1.5 rounded-lg border border-scout-border text-scout-muted hover:text-scout-tan hover:border-scout-tan/50 transition-colors" title="Заменить или переименовать">
+                        <div class="editor-only items-center gap-1.5 shrink-0">
+                            <button onclick="openPhotoModal('gallery', ${idx})" class="p-1.5 rounded-lg border border-borderline text-corps-muted hover:text-corps-brass hover:border-corps-brass/50 transition-colors" title="Изменить фото или подпись">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                             </button>
-                            ${deleteBtnHtml}
+                            ${deleteButton}
                         </div>
                     </div>
                 `;
@@ -1026,71 +969,138 @@
             });
         }
 
-        function handleImageClick(type, key) {
-            if (isOwnerUnlocked && isEditMode) {
+        // Клик по фотографии: в режиме гостя открывает лайтбокс, в режиме редактора — окно замены
+        function handleImageInteraction(type, key) {
+            if (isEditorActive) {
                 openPhotoModal(type, key);
                 return;
             }
             if (type === 'gallery') {
                 openLightbox(key);
             } else if (type === 'slot') {
-                const src = appState.slots[key];
-                openCustomLightbox(src, 'Архивный снимок — Келли Кёрн');
+                const src = mediaState.slots[key];
+                openSingleLightbox(src, 'Архивный портрет — Келли Кёрн');
             }
         }
 
-        function toggleEditMode() {
-            if (!isOwnerUnlocked) return;
-            isEditMode = !isEditMode;
-            document.body.classList.toggle('edit-mode', isEditMode);
-            updateEditBtnUI();
-        }
-
-        function openPhotoModal(type, key = null) {
-            if (!isOwnerUnlocked) {
-                openOwnerAuthModal();
+        // --- РЕЖИМ РЕДАКТОРА ПО SHIFT + E (ПАРОЛЬ 76717671) ---
+        function openPasswordModal() {
+            if (isEditorActive) {
+                notify("Режим редактора уже активен");
                 return;
             }
-            modalTargetType = type;
-            modalTargetKey = key;
-            tempImageData = '';
+            const modal = document.getElementById('passwordModal');
+            const input = document.getElementById('editorPassInput');
+            document.getElementById('passwordError').classList.add('hidden');
+            input.value = '';
+            modal.classList.remove('hidden');
+            setTimeout(() => input.focus(), 50);
+        }
+
+        function closePasswordModal() {
+            document.getElementById('passwordModal').classList.add('hidden');
+        }
+
+        function verifyEditorPassword(e) {
+            e.preventDefault();
+            const val = document.getElementById('editorPassInput').value.trim();
+            if (val === EDITOR_PASSPHRASE) {
+                closePasswordModal();
+                enableEditorMode();
+            } else {
+                document.getElementById('passwordError').classList.remove('hidden');
+            }
+        }
+
+        function enableEditorMode() {
+            isEditorActive = true;
+            document.body.classList.add('is-editor');
+
+            // Раскрываем все главы, чтобы любую главу было удобно редактировать
+            switchChapter(0);
+
+            // Делаем все текстовые блоки редактируемыми прямо на странице
+            document.querySelectorAll('[data-editable="true"]').forEach(el => {
+                el.setAttribute('contenteditable', 'true');
+                el.setAttribute('spellcheck', 'false');
+                el.oninput = () => saveCurrentTexts();
+            });
+
+            renderMedia();
+            notify("Режим редактора разблокирован. Кликните на любой текст или фото.");
+        }
+
+        function exitEditorMode() {
+            saveCurrentTexts();
+            isEditorActive = false;
+            document.body.classList.remove('is-editor');
+            document.querySelectorAll('[data-editable="true"]').forEach(el => {
+                el.removeAttribute('contenteditable');
+            });
+            renderMedia();
+            notify("Вы вышли из режима редактора. Изменения сохранены.");
+        }
+
+        // Добавление нового пункта в списки Симпатий / Антипатий
+        function addListItem(listId) {
+            if (!isEditorActive) return;
+            const ul = document.getElementById(listId);
+            const isDislike = listId === 'dislikesList';
+            const li = document.createElement('li');
+            li.className = "flex items-start gap-3";
+            li.innerHTML = `
+                <span class="${isDislike ? 'text-rose-400/80' : 'text-corps-brass'} font-mono text-xs mt-0.5">—</span>
+                <span class="flex-1" data-editable="true" contenteditable="true" spellcheck="false">Новый пункт (нажмите, чтобы изменить)...</span>
+            `;
+            ul.appendChild(li);
+            assignEditableIds();
+            li.querySelector('[data-editable="true"]').oninput = () => saveCurrentTexts();
+            saveCurrentTexts();
+        }
+
+        // --- МОДАЛЬНОЕ ОКНО ЗАМЕНЫ И ДОБАВЛЕНИЯ ФОТОГРАФИЙ ---
+        function openPhotoModal(mode, key = null) {
+            if (!isEditorActive) return;
+            photoModalMode = mode;
+            photoModalKey = key;
+            pendingPhotoSrc = "";
 
             const modal = document.getElementById('photoModal');
             const titleEl = document.getElementById('photoModalTitle');
-            const urlInput = document.getElementById('photoUrlInput');
-            const captionGroup = document.getElementById('photoCaptionGroup');
+            const pathInput = document.getElementById('photoPathInput');
+            const captionWrap = document.getElementById('photoCaptionWrap');
             const captionInput = document.getElementById('photoCaptionInput');
-            const previewWrapper = document.getElementById('photoPreviewWrapper');
+            const previewBox = document.getElementById('photoPreviewBox');
             const previewImg = document.getElementById('photoPreviewImg');
             document.getElementById('photoFileInput').value = '';
 
-            if (type === 'slot') {
-                const slotNames = {
-                    hero: 'Главный портрет досье',
-                    chap1: 'Иллюстрация Главы 1',
-                    chap2: 'Иллюстрация Главы 2',
-                    chap3: 'Иллюстрация Главы 3'
+            if (mode === 'slot') {
+                const labels = {
+                    hero: "Главный портрет досье",
+                    chap1: "Иллюстрация Главы 1",
+                    chap2: "Иллюстрация Главы 2",
+                    chap3: "Иллюстрация Главы 3"
                 };
-                titleEl.textContent = `Заменить: ${slotNames[key] || 'Фото'}`;
-                captionGroup.classList.add('hidden');
-                const currentSrc = appState.slots[key] || '';
-                urlInput.value = currentSrc.startsWith('data:') ? '' : currentSrc;
-                previewImg.src = currentSrc;
-                previewWrapper.classList.remove('hidden');
-            } else if (type === 'gallery') {
-                const item = appState.gallery[key];
-                titleEl.textContent = `Редактировать снимок №${String(key + 1).padStart(2, '0')}`;
-                captionGroup.classList.remove('hidden');
+                titleEl.textContent = `Заменить: ${labels[key] || 'Фото'}`;
+                captionWrap.classList.add('hidden');
+                const cur = mediaState.slots[key] || '';
+                pathInput.value = cur.startsWith('data:') ? '' : cur;
+                previewImg.src = cur;
+                previewBox.classList.remove('hidden');
+            } else if (mode === 'gallery') {
+                const item = mediaState.gallery[key];
+                titleEl.textContent = `Редактировать кадр №${String(key + 1).padStart(2, '0')}`;
+                captionWrap.classList.remove('hidden');
                 captionInput.value = item.title || '';
-                urlInput.value = item.src.startsWith('data:') ? '' : item.src;
+                pathInput.value = item.src.startsWith('data:') ? '' : item.src;
                 previewImg.src = item.src;
-                previewWrapper.classList.remove('hidden');
+                previewBox.classList.remove('hidden');
             } else {
-                titleEl.textContent = 'Добавить новую фотографию';
-                captionGroup.classList.remove('hidden');
+                titleEl.textContent = "Добавить фотографию в галерею";
+                captionWrap.classList.remove('hidden');
                 captionInput.value = '';
-                urlInput.value = '';
-                previewWrapper.classList.add('hidden');
+                pathInput.value = '';
+                previewBox.classList.add('hidden');
             }
 
             modal.classList.remove('hidden');
@@ -1100,24 +1110,40 @@
             document.getElementById('photoModal').classList.add('hidden');
         }
 
-        function handleFileSelect(event) {
+        function selectRepoFile(filename) {
+            pendingPhotoSrc = filename;
+            document.getElementById('photoPathInput').value = filename;
+            document.getElementById('photoPreviewImg').src = filename;
+            document.getElementById('photoPreviewBox').classList.remove('hidden');
+        }
+
+        function previewTypedUrl(val) {
+            const clean = val.trim();
+            if (clean) {
+                pendingPhotoSrc = clean;
+                document.getElementById('photoPreviewImg').src = clean;
+                document.getElementById('photoPreviewBox').classList.remove('hidden');
+            }
+        }
+
+        function handleFileUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
 
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = function(ev) {
                 const img = new Image();
                 img.onload = function() {
-                    const maxDim = 1200;
+                    const maxSide = 1280;
                     let w = img.width;
                     let h = img.height;
-                    if (w > maxDim || h > maxDim) {
+                    if (w > maxSide || h > maxSide) {
                         if (w > h) {
-                            h = Math.round((h * maxDim) / w);
-                            w = maxDim;
+                            h = Math.round((h * maxSide) / w);
+                            w = maxSide;
                         } else {
-                            w = Math.round((w * maxDim) / h);
-                            h = maxDim;
+                            w = Math.round((w * maxSide) / h);
+                            h = maxSide;
                         }
                     }
                     const canvas = document.createElement('canvas');
@@ -1125,102 +1151,105 @@
                     canvas.height = h;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, w, h);
-                    tempImageData = canvas.toDataURL('image/jpeg', 0.84);
+                    pendingPhotoSrc = canvas.toDataURL('image/jpeg', 0.85);
 
-                    document.getElementById('photoUrlInput').value = '';
-                    document.getElementById('photoPreviewImg').src = tempImageData;
-                    document.getElementById('photoPreviewWrapper').classList.remove('hidden');
+                    document.getElementById('photoPathInput').value = '';
+                    document.getElementById('photoPreviewImg').src = pendingPhotoSrc;
+                    document.getElementById('photoPreviewBox').classList.remove('hidden');
                 };
-                img.src = e.target.result;
+                img.src = ev.target.result;
             };
             reader.readAsDataURL(file);
         }
 
-        function handleUrlInput(val) {
-            const trimmed = val.trim();
-            if (trimmed) {
-                tempImageData = trimmed;
-                document.getElementById('photoPreviewImg').src = trimmed;
-                document.getElementById('photoPreviewWrapper').classList.remove('hidden');
-            }
-        }
+        function applyPhotoChange() {
+            const typed = document.getElementById('photoPathInput').value.trim();
+            const caption = document.getElementById('photoCaptionInput').value.trim() || 'Архивный снимок';
+            const chosenSrc = pendingPhotoSrc || typed;
 
-        function savePhotoFromModal() {
-            const urlVal = document.getElementById('photoUrlInput').value.trim();
-            const captionVal = document.getElementById('photoCaptionInput').value.trim() || 'Архивный снимок';
-            const finalSrc = tempImageData || urlVal;
-
-            if (modalTargetType === 'slot') {
-                if (finalSrc) {
-                    appState.slots[modalTargetKey] = finalSrc;
+            if (photoModalMode === 'slot') {
+                if (chosenSrc) {
+                    mediaState.slots[photoModalKey] = chosenSrc;
                 }
-                showToast('Фотография успешно обновлена');
-            } else if (modalTargetType === 'gallery') {
-                if (finalSrc) {
-                    appState.gallery[modalTargetKey].src = finalSrc;
+                notify("Фотография обновлена");
+            } else if (photoModalMode === 'gallery') {
+                if (chosenSrc) {
+                    mediaState.gallery[photoModalKey].src = chosenSrc;
                 }
-                appState.gallery[modalTargetKey].title = captionVal;
-                showToast('Снимок в галерее обновлен');
-            } else if (modalTargetType === 'add') {
-                if (!finalSrc) {
-                    showToast('Пожалуйста, выберите файл или укажите ссылку');
+                mediaState.gallery[photoModalKey].title = caption;
+                notify("Снимок в галерее обновлен");
+            } else if (photoModalMode === 'add') {
+                if (!chosenSrc) {
+                    notify("Выберите файл или укажите название картинки");
                     return;
                 }
-                appState.gallery.push({
-                    src: finalSrc,
-                    title: captionVal
+                mediaState.gallery.push({
+                    src: chosenSrc,
+                    title: caption
                 });
-                showToast('Новая фотография добавлена в галерею');
+                notify("Фотография добавлена в галерею");
             }
 
-            saveState();
-            renderAllImages();
+            saveMediaState();
+            renderMedia();
             closePhotoModal();
         }
 
-        function deleteGalleryPhoto(index) {
-            if (!isOwnerUnlocked || appState.gallery.length <= 1) return;
-            appState.gallery.splice(index, 1);
-            saveState();
-            renderAllImages();
-            showToast('Снимок удален из галереи');
+        function removeGalleryItem(idx) {
+            if (!isEditorActive || mediaState.gallery.length <= 1) return;
+            mediaState.gallery.splice(idx, 1);
+            saveMediaState();
+            renderMedia();
+            notify("Снимок удален");
         }
 
-        function resetDefaultPhotos() {
-            if (!isOwnerUnlocked) return;
-            localStorage.removeItem(STORAGE_KEY);
-            appState = JSON.parse(JSON.stringify(DEFAULT_STATE));
-            renderAllImages();
-            showToast('Возвращены исходные фотографии');
+        function resetAllChanges() {
+            if (!isEditorActive) return;
+            localStorage.removeItem(STORAGE_MEDIA_KEY);
+            localStorage.removeItem(STORAGE_TEXT_KEY);
+            location.reload();
         }
 
-        function exportStandaloneHTML() {
-            const docClone = document.documentElement.cloneNode(true);
-            const bodyClone = docClone.querySelector('body');
-            bodyClone.classList.remove('admin-unlocked', 'edit-mode');
+        // ЭКСПОРТ ГОТОВОГО ЧИСТОГО INDEX.HTML ДЛЯ GITHUB
+        function exportCleanHTML() {
+            saveCurrentTexts();
 
-            const visitorBadgeClone = docClone.querySelector('#visitorBadge');
-            if (visitorBadgeClone) visitorBadgeClone.classList.remove('hidden');
+            // Клонируем текущий DOM со всеми отредактированными текстами
+            const clone = document.documentElement.cloneNode(true);
+            const bodyClone = clone.querySelector('body');
 
-            const photoModalClone = docClone.querySelector('#photoModal');
-            if (photoModalClone) photoModalClone.classList.add('hidden');
+            // Выключаем класс редактора и contenteditable, чтобы посетители видели чистый сайт
+            bodyClone.classList.remove('is-editor');
+            clone.querySelectorAll('[contenteditable]').forEach(el => {
+                el.removeAttribute('contenteditable');
+                el.removeAttribute('spellcheck');
+            });
 
-            const githubModalClone = docClone.querySelector('#githubModal');
-            if (githubModalClone) githubModalClone.classList.add('hidden');
+            // Возвращаем вкладку Главы 1 по умолчанию для гостей
+            const c1 = clone.querySelector('#bioChapter1');
+            const c2 = clone.querySelector('#bioChapter2');
+            const c3 = clone.querySelector('#bioChapter3');
+            if (c1) c1.classList.remove('hidden');
+            if (c2) c2.classList.add('hidden');
+            if (c3) c3.classList.add('hidden');
 
-            const authModalClone = docClone.querySelector('#ownerAuthModal');
-            if (authModalClone) authModalClone.classList.add('hidden');
+            // Прячем открытые модалки и уведомления в сохраненном файле
+            ['passwordModal', 'photoModal', 'lightbox', 'toast'].forEach(id => {
+                const el = clone.querySelector('#' + id);
+                if (el) {
+                    el.classList.add('hidden');
+                    el.classList.remove('flex');
+                }
+            });
 
-            const toastClone = docClone.querySelector('#toast');
-            if (toastClone) toastClone.classList.add('hidden');
-
-            const dataScript = docClone.querySelector('#appDataScript');
-            if (dataScript) {
-                dataScript.textContent = '\n        const DEFAULT_STATE = ' + JSON.stringify(appState, null, 4) + ';\n    ';
+            // Записываем актуальные фотографии в INITIAL_MEDIA_STATE внутри файла
+            const stateScript = clone.querySelector('#dossierStateScript');
+            if (stateScript) {
+                stateScript.textContent = '\n        const INITIAL_MEDIA_STATE = ' + JSON.stringify(mediaState, null, 4) + ';\n    ';
             }
 
-            const finalHtml = '<!DOCTYPE html>\n' + docClone.outerHTML;
-            const blob = new Blob([finalHtml], { type: 'text/html;charset=utf-8' });
+            const htmlOutput = '<!DOCTYPE html>\n' + clone.outerHTML;
+            const blob = new Blob([htmlOutput], { type: 'text/html;charset=utf-8' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -1230,50 +1259,39 @@
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
 
-            showToast('Чистый index.html скачан! Обычные посетители не увидят кнопок.');
+            notify("Готовый файл index.html скачан! Загрузите его в репозиторий GitHub.");
         }
 
-        function openGithubModal() {
-            if (!isOwnerUnlocked) {
-                openOwnerAuthModal();
-                return;
-            }
-            document.getElementById('githubModal').classList.remove('hidden');
-        }
-
-        function closeGithubModal() {
-            document.getElementById('githubModal').classList.add('hidden');
-        }
-
-        function selectChapter(chapterNum) {
-            const chapters = [1, 2, 3];
-            chapters.forEach(num => {
-                const el = document.getElementById('chapter' + num);
-                if (chapterNum === 0 || chapterNum === num) {
-                    el.classList.remove('hidden');
+        // ПЕРЕКЛЮЧЕНИЕ ГЛАВ БИОГРАФИИ
+        function switchChapter(num) {
+            [1, 2, 3].forEach(i => {
+                const article = document.getElementById('bioChapter' + i);
+                if (num === 0 || num === i) {
+                    article.classList.remove('hidden');
                 } else {
-                    el.classList.add('hidden');
+                    article.classList.add('hidden');
                 }
             });
 
-            [0, 1, 2, 3].forEach(num => {
-                const btn = document.getElementById('tabBtn' + num);
-                if (num === chapterNum) {
-                    btn.className = "chapter-tab px-4 py-2 rounded-xl text-xs font-medium transition-all bg-scout-green text-white shadow-sm";
+            [0, 1, 2, 3].forEach(i => {
+                const btn = document.getElementById('chapTab' + i);
+                if (i === num) {
+                    btn.className = "px-4 py-2 rounded-lg font-mono text-xs transition-all bg-corps-green text-white shadow";
                 } else {
-                    btn.className = "chapter-tab px-4 py-2 rounded-xl text-xs font-medium transition-all bg-scout-card text-scout-muted border border-scout-border hover:border-scout-tan/50";
+                    btn.className = "px-4 py-2 rounded-lg font-mono text-xs transition-all text-corps-muted hover:text-corps-parchment";
                 }
             });
         }
 
-        function openLightbox(index) {
-            currentSlide = index;
-            updateLightboxContent();
+        // ЛАЙТБОКС
+        function openLightbox(idx) {
+            activeLightboxIdx = idx;
+            updateLightboxView();
             document.getElementById('lightbox').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
         }
 
-        function openCustomLightbox(src, caption) {
+        function openSingleLightbox(src, caption) {
             document.getElementById('lightboxImg').src = src;
             document.getElementById('lightboxCaption').textContent = caption;
             document.getElementById('lightbox').classList.remove('hidden');
@@ -1285,44 +1303,41 @@
             document.body.style.overflow = '';
         }
 
-        function changeSlide(direction) {
-            if (!appState.gallery.length) return;
-            currentSlide = (currentSlide + direction + appState.gallery.length) % appState.gallery.length;
-            updateLightboxContent();
+        function stepLightbox(dir) {
+            if (!mediaState.gallery.length) return;
+            activeLightboxIdx = (activeLightboxIdx + dir + mediaState.gallery.length) % mediaState.gallery.length;
+            updateLightboxView();
         }
 
-        function updateLightboxContent() {
-            const item = appState.gallery[currentSlide];
+        function updateLightboxView() {
+            const item = mediaState.gallery[activeLightboxIdx];
             if (!item) return;
             document.getElementById('lightboxImg').src = item.src;
-            document.getElementById('lightboxCaption').textContent = item.title + ' — Архив Келли Кёрн';
+            document.getElementById('lightboxCaption').textContent = item.title;
         }
 
+        // ГЛОБАЛЬНЫЙ СЛУШАТЕЛЬ SHIFT + E (РАБОТАЕТ НА ЛЮБОЙ РАСКЛАДКЕ КЛАВИАТУРЫ)
         window.addEventListener('keydown', (e) => {
-            if (e.shiftKey && (e.key === 'E' || e.key === 'e' || e.key === 'У' || e.key === 'у')) {
-                const activeTag = document.activeElement ? document.activeElement.tagName : '';
-                if (activeTag !== 'INPUT' && activeTag !== 'TEXTAREA') {
+            if (e.shiftKey && (e.code === 'KeyE' || e.key === 'E' || e.key === 'e' || e.key === 'У' || e.key === 'у')) {
+                const activeEl = document.activeElement;
+                const isTyping = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.isContentEditable);
+                if (!isTyping) {
                     e.preventDefault();
-                    openOwnerAuthModal();
+                    openPasswordModal();
                 }
             }
 
             const lb = document.getElementById('lightbox');
             if (!lb.classList.contains('hidden')) {
                 if (e.key === 'Escape') closeLightbox();
-                if (e.key === 'ArrowRight') changeSlide(1);
-                if (e.key === 'ArrowLeft') changeSlide(-1);
+                if (e.key === 'ArrowRight') stepLightbox(1);
+                if (e.key === 'ArrowLeft') stepLightbox(-1);
             }
         });
 
-        function checkUrlAdminTrigger() {
-            if (window.location.hash === '#admin' || window.location.search.includes('edit')) {
-                openOwnerAuthModal();
-            }
-        }
-
-        renderAllImages();
-        checkUrlAdminTrigger();
+        // Инициализация при загрузке
+        loadSavedTexts();
+        renderMedia();
     </script>
 </body>
 </html>
